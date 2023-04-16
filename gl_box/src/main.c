@@ -9,11 +9,11 @@
 #include "types.h"
 #include "shader.h"
 
-vec3f quad_positions[] = {
-        { 0.5f,  0.5f, 0.0f},
-        { 0.5f, -0.5f, 0.0f},
-        {-0.5f, -0.5f, 0.0f},
-        {-0.5f,  0.5f, 0.0f}
+vec3f quad_vertices[] = {
+        { 0.5f,  0.5f, 0.0f}, {1.0f, 0.0f, 0.0f},
+        { 0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f},
+        {-0.5f, -0.5f, 0.0f}, {0.0f, 0.0f, 1.0f},
+        {-0.5f,  0.5f, 0.0f}, {0.0f, 0.0f, 0.0f}
 };
 
 uint32_t quad_indices[] = {
@@ -54,6 +54,29 @@ int main() {
     glViewport(0, 0, width, height);
     glfwSetFramebufferSizeCallback(window, frame_resize_callback);
 
+    // Setup VAO to store our state
+    gl_obj vertex_array = 0;
+    glGenVertexArrays(1, &vertex_array);
+    glBindVertexArray(vertex_array);
+
+    // Setup vertex buffer
+    gl_obj vertex_buffer = 0;
+    glGenBuffers(1, &vertex_buffer);
+    glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(quad_vertices), &quad_vertices, GL_STATIC_DRAW);
+
+    // Element buffer
+    gl_obj element_buffer = 0;
+    glGenBuffers(1, &element_buffer);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, element_buffer);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(quad_indices), &quad_indices, GL_STATIC_DRAW);
+
+    // Create vertex layout
+    glVertexAttribPointer(0, sizeof(vec3f) / sizeof(float), GL_FLOAT, GL_FALSE, sizeof(vec3f) * 2, NULL);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, sizeof(vec3f) / sizeof(float), GL_FLOAT, GL_FALSE, sizeof(vec3f) * 2, (void*)sizeof(vec3f));
+    glEnableVertexAttribArray(1);
+
     // Load and compile shaders
     gl_obj vertex_shader = compile_shader("../../../gl_box/src/gl/vertex.glsl", GL_VERTEX_SHADER);
     gl_obj fragment_shader = compile_shader("../../../gl_box/src/gl/fragment.glsl", GL_FRAGMENT_SHADER);
@@ -62,7 +85,6 @@ int main() {
         printf("main(): Failed to compile shaders.\n");
     }
     else {
-
         // Link the compiled shaders
         gl_obj shader_program = glCreateProgram();
         glAttachShader(shader_program, vertex_shader);
@@ -83,27 +105,7 @@ int main() {
         glDeleteShader(vertex_shader);
         glDeleteShader(fragment_shader);
 
-        // Setup VAO to store our state
-        gl_obj vertex_array = 0;
-        glGenVertexArrays(1, &vertex_array);
-        glBindVertexArray(vertex_array);
-
-        // Basic XYZ position layout
-        gl_obj vertex_buffer = 0;
-        glGenBuffers(1, &vertex_buffer);
-        glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(quad_positions), &quad_positions, GL_STATIC_DRAW);
-
-        // Element buffer
-        gl_obj element_buffer = 0;
-        glGenBuffers(1, &element_buffer);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, element_buffer);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(quad_indices), &quad_indices, GL_STATIC_DRAW);
-
-        glVertexAttribPointer(0, sizeof(vec3f) / sizeof(float), GL_FLOAT, GL_FALSE, sizeof(vec3f), NULL);
-        glEnableVertexAttribArray(0);
-
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
         // Keep window alive and updated
         while (!glfwWindowShouldClose(window)) {
