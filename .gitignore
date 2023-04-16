@@ -1,0 +1,11 @@
+# CLion
+.idea/
+
+# Build output
+out/
+CMakeFiles/
+*.a
+*.lib
+*.exe
+*.dll
+*.so
