@@ -14,6 +14,13 @@ typedef struct {
     float z;
 }vec3f;
 
+typedef struct {
+    float x;
+    float y;
+    float z;
+    float w;
+}vec4f;
+
 typedef uint64_t u64;
 typedef int64_t s64;
 typedef uint32_t u32;
