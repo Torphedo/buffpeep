@@ -4,8 +4,14 @@
 # Build output
 out/
 CMakeFiles/
+cmake_*/
 *.a
 *.lib
 *.exe
 *.dll
 *.so
+
+# NeoVim clangd stuff
+.cache/
+compile_commands.json
+
