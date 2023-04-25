@@ -1,10 +1,13 @@
 #include <stdio.h>
 #include <stdbool.h>
+#include <string.h>
 #include <sys/stat.h>
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include <synchapi.h>
+
+// Windows-only (for Sleep())
+// #include <synchapi.h>
 
 #include "types.h"
 #include "shader.h"
@@ -78,8 +81,13 @@ int main() {
     glEnableVertexAttribArray(1);
 
     // Load and compile shaders
-    gl_obj vertex_shader = compile_shader("../../../gl_box/src/gl/vertex.glsl", GL_VERTEX_SHADER);
-    gl_obj fragment_shader = compile_shader("../../../gl_box/src/gl/fragment.glsl", GL_FRAGMENT_SHADER);
+    char vert_path[256] = CMAKE_SRC_ROOT;
+    strcat(vert_path, "/gl_box/src/gl/vertex.glsl");
+    gl_obj vertex_shader = compile_shader(vert_path, GL_VERTEX_SHADER);
+
+    char frag_path[256] = CMAKE_SRC_ROOT;
+    strcat(frag_path, "/gl_box/src/gl/fragment.glsl");
+    gl_obj fragment_shader = compile_shader(frag_path, GL_FRAGMENT_SHADER);
 
     if (vertex_shader == 0 || fragment_shader == 0) {
         printf("main(): Failed to compile shaders.\n");
@@ -110,7 +118,8 @@ int main() {
         // Keep window alive and updated
         while (!glfwWindowShouldClose(window)) {
 
-            Sleep(16);
+            // Windows-only
+            // Sleep(16);
 
             // Clear framebuffer
             glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
