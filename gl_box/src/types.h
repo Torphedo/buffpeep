@@ -4,21 +4,21 @@
 typedef uint32_t gl_obj;
 
 typedef struct {
-    float x;
-    float y;
+  float x;
+  float y;
 }vec2f;
 
 typedef struct {
-    float x;
-    float y;
-    float z;
+  float x;
+  float y;
+  float z;
 }vec3f;
 
 typedef struct {
-    float x;
-    float y;
-    float z;
-    float w;
+  float x;
+  float y;
+  float z;
+  float w;
 }vec4f;
 
 typedef uint64_t u64;
