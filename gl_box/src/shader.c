@@ -6,6 +6,7 @@
 
 #include <glad/glad.h>
 
+#include "logging.h"
 #include "shader.h"
 
 // Read an entire file into a buffer. Caller is responsible for freeing the resource.
@@ -22,14 +23,14 @@ uint8_t* load_resource(const char* path) {
       return buffer;
     }
   }
-  printf("load_resource(): %s doesn't exist.\n", path);
+  LOG_MSG(error, "%s doesn't exist.\n", path);
   return NULL;
 }
 
 gl_obj compile_shader(const char* path, GLenum shader_type) {
   char* shader_source = (char*)load_resource(path);
   if (shader_source == NULL) {
-    printf("compile_shader(): Failed to open GLSL source file %s\n", path);
+    LOG_MSG(error, "failed to open GLSL source file %s\n", path);
     return 0;
   }
   gl_obj shader = glCreateShader(shader_type);
@@ -42,7 +43,7 @@ gl_obj compile_shader(const char* path, GLenum shader_type) {
   if (!success) {
     char log[512] = {0};
     glGetShaderInfoLog(shader, sizeof(log), NULL, log);
-    printf("compile_shader(): Failed to compile shader %s.\n%s\n", path, log);
+    LOG_MSG(error, "failed to compile shader %s.\n%s\n", path, log);
   }
   free(shader_source);
   return shader;

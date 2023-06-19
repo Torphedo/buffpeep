@@ -12,6 +12,7 @@
 #include "types.h"
 #include "shader.h"
 #include "image.h"
+#include "logging.h"
 
 typedef struct {
   vec3f position;
@@ -49,7 +50,7 @@ int main() {
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
   GLFWwindow* window = glfwCreateWindow(width, height, "Hello Triangle", NULL, NULL);
   if (window == NULL) {
-    printf("main(): Failed to create GLFW window of size %dx%d.\n", width, height);
+    LOG_MSG(error, "failed to create GLFW window of size %dx%d.\n", width, height);
     glfwTerminate();
     return 1;
   }
@@ -57,7 +58,7 @@ int main() {
   // Create the OpenGL context
   glfwMakeContextCurrent(window);
   if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)) {
-    printf("main(): Failed to initialize GLAD for OpenGL Core 3.3.\n");
+    LOG_MSG(error, "failed to initialize GLAD for OpenGL Core 3.3.\n");
     return 1;
   }
   // Set OpenGL viewport to size of window, handle resizing
@@ -99,7 +100,7 @@ int main() {
   gl_obj fragment_shader = compile_shader(frag_path, GL_FRAGMENT_SHADER);
 
   if (vertex_shader == 0 || fragment_shader == 0) {
-    printf("main(): Failed to compile shaders.\n");
+    LOG_MSG(error, "failed to compile shaders.\n");
   }
   else {
     // Link the compiled shaders
@@ -114,7 +115,7 @@ int main() {
     if (!link_success) {
       char log[512] = {0};
       glGetProgramInfoLog(shader_program, sizeof(log), NULL, log);
-      printf("main(): Failed to link shader program.\n%s\n", log);
+      LOG_MSG(error, "failed to link shader program.\n%s\n", log);
     }
     glUseProgram(shader_program);
 
@@ -139,16 +140,13 @@ int main() {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     if (perlin.data != NULL) {
-      printf("main(): Binding loaded image data.\n");
+      LOG_MSG(info, "Binding loaded image data.\n");
       glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, perlin.width, perlin.height, 0, GL_RGB, GL_UNSIGNED_BYTE, perlin.data);
       glGenerateMipmap(GL_TEXTURE_2D);
     }
 
     // Keep window alive and updated
     while (!glfwWindowShouldClose(window)) {
-
-      // Windows-only
-      // Sleep(16);
 
       // Clear framebuffer
       glClearColor(0.2f, 0.3f, 0.3f, 1.0f);

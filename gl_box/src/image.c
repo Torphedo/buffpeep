@@ -4,6 +4,7 @@
 #include <malloc.h>
 
 #include "image.h"
+#include "logging.h"
 
 typedef enum dds_format_flags {
     DDPF_ALPHAPIXELS = 0x00000001,
@@ -52,10 +53,10 @@ texture load_dds(allocator_t allocator, char* filename) {
   static dds_header header = {0};
   FILE* file = fopen(filename, "rb");
   if (file == NULL) {
-    printf("load_dds(): failed to open %s\n", filename);
+    LOG_MSG(error, "failed to open %s\n", filename);
     return output;
   }
-  printf("load_dds(): loading %s...\n", filename);
+  LOG_MSG(info, "loading %s...\n", filename);
 
   fread(&header, sizeof(header), 1, file);
 
@@ -85,8 +86,8 @@ texture load_dds(allocator_t allocator, char* filename) {
   output.width = header.width;
   output.mip_level = header.mipmap_count;
 
-  printf("load_dds(): %d bits per pixel\n", output.bits_per_pixel);
-  printf("load_dds(): %dx%d\n", output.width, output.height);
+  LOG_MSG(info, "%d bits per pixel\n", output.bits_per_pixel);
+  LOG_MSG(info, "%dx%d\n", output.width, output.height);
   return output;
 }
 
