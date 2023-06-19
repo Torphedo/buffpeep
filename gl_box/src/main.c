@@ -193,6 +193,10 @@ int main() {
     glDeleteProgram(shader_program);
     glDeleteVertexArrays(1, &vertex_array);
     glDeleteBuffers(1, &vertex_buffer);
+
+    if (perlin.data != NULL) {
+      free(perlin.data);
+    }
   }
 
   // Shut down
