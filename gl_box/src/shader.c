@@ -6,16 +6,17 @@
 
 #include <glad/glad.h>
 
+#include "types.h"
 #include "logging.h"
 #include "shader.h"
 
 // Read an entire file into a buffer. Caller is responsible for freeing the resource.
 // This is mainly used to load shader source code.
-uint8_t* load_resource(const char* path) {
+u8* load_resource(const char* path) {
   struct stat st = {0};
   bool exists = (stat(path, &st) == 0);
   if (exists) {
-    uint8_t* buffer = calloc(1, st.st_size);
+    u8* buffer = calloc(1, st.st_size);
     FILE* resource = fopen(path, "rb");
     if (resource != NULL && buffer != NULL) {
       fread(buffer, st.st_size, 1, resource);
@@ -38,7 +39,7 @@ gl_obj compile_shader(const char* path, GLenum shader_type) {
   glCompileShader(shader);
 
   // Check for shader compile errors
-  int success = 0;
+  s32 success = 0;
   glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
   if (!success) {
     char log[512] = {0};

@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <malloc.h>
 
+#include "types.h"
 #include "image.h"
 #include "logging.h"
 
@@ -16,35 +17,35 @@ typedef enum dds_format_flags {
 }dds_format_flags;
 
 typedef struct dds_pixel_format {
-    uint32_t size; // Must be 32 (0x20)
-    uint32_t flags;
-    uint32_t format_char_code; // See dwFourCC here: https://learn.microsoft.com/en-us/windows/win32/direct3ddds/dds-pixelformat
-    uint32_t bits_per_pixel;
-    uint32_t red_bitmask;
-    uint32_t green_bitmask;
-    uint32_t blue_bitmask;
-    uint32_t alpha_bitmask;
+    u32 size; // Must be 32 (0x20)
+    u32 flags;
+    u32 format_char_code; // See dwFourCC here: https://learn.microsoft.com/en-us/windows/win32/direct3ddds/dds-pixelformat
+    u32 bits_per_pixel;
+    u32 red_bitmask;
+    u32 green_bitmask;
+    u32 blue_bitmask;
+    u32 alpha_bitmask;
 }dds_pixel_format;
 
 typedef struct dds_header {
-    uint32_t identifier;   // DDS_BEGIN as defined above. aka "file magic" / "magic number".
-    uint32_t size;         // Must be 124 (0x7C)
-    uint32_t flags;
-    uint32_t height;
-    uint32_t width;
-    uint32_t pitch_or_linear_size;
-    uint32_t depth;
-    uint32_t mipmap_count;
-    uint32_t reserved[11]; // Unused
+    u32 identifier;   // DDS_BEGIN as defined above. aka "file magic" / "magic number".
+    u32 size;         // Must be 124 (0x7C)
+    u32 flags;
+    u32 height;
+    u32 width;
+    u32 pitch_or_linear_size;
+    u32 depth;
+    u32 mipmap_count;
+    u32 reserved[11]; // Unused
     dds_pixel_format pixel_format;
-    uint32_t caps;         // Flags for complexity of the surface
-    uint32_t caps2;        // Always 0 because we don't use cubemaps or volumes
-    uint32_t caps3;        // Unused
-    uint32_t caps4;        // Unused
-    uint32_t reserved2;    // Unused
+    u32 caps;         // Flags for complexity of the surface
+    u32 caps2;        // Always 0 because we don't use cubemaps or volumes
+    u32 caps3;        // Unused
+    u32 caps4;        // Unused
+    u32 reserved2;    // Unused
 }dds_header;
 
-bool has_flag(uint32_t input, uint32_t flag) {
+bool has_flag(u32 input, u32 flag) {
   return (input ^ flag) != input;
 }
 
@@ -60,7 +61,7 @@ texture load_dds(allocator_t allocator, char* filename) {
 
   fread(&header, sizeof(header), 1, file);
 
-  uint32_t flags = header.pixel_format.flags;
+  u32 flags = header.pixel_format.flags;
   if (has_flag(flags, DDPF_RGB) || has_flag(flags, DDPF_LUMINANCE) || has_flag(flags, DDPF_YUV) || has_flag(flags, DDPF_ALPHA)) {
     output.bits_per_pixel = header.pixel_format.bits_per_pixel;
   }
@@ -72,7 +73,7 @@ texture load_dds(allocator_t allocator, char* filename) {
     output.bits_per_pixel = 16;
   }
 
-  uint32_t texture_size = header.width * header.height * (output.bits_per_pixel / 8);
+  u32 texture_size = header.width * header.height * (output.bits_per_pixel / 8);
   output.data = allocator.calloc(1, texture_size);
   if (output.data == NULL) {
     fclose(file);

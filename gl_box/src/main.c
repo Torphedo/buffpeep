@@ -50,7 +50,7 @@ vertex quad_vertices[] = {
   }
 };
 
-uint32_t quad_indices[] = {
+u32 quad_indices[] = {
   0, 1, 3,
   1, 2, 3,
 
@@ -78,8 +78,8 @@ int main() {
   // Remove the console window on startup on Windows
   // FreeConsole();
 
-  static const int32_t width = 800;
-  static const int32_t height = 600;
+  static const s32 width = 800;
+  static const s32 height = 600;
 
   // Setup GLFW with OpenGL Core 3.3
   glfwInit();
@@ -146,7 +146,7 @@ int main() {
     glLinkProgram(shader_program);
 
     // Linker error checking
-    int link_success = 0;
+    s32 link_success = 0;
     glGetProgramiv(shader_program, GL_LINK_STATUS, &link_success);
     if (!link_success) {
       char log[512] = {0};
@@ -165,7 +165,7 @@ int main() {
 
     // Load texture(s)
     texture perlin = load_dds(allocator_default, "data/perlin.dds");
-    uint32_t gl_perlin = 0;
+    u32 gl_perlin = 0;
     glGenTextures(1, &gl_perlin);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, gl_perlin);
