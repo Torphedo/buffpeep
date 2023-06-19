@@ -133,7 +133,7 @@ int main() {
     
 
     // Load texture(s)
-    texture perlin = load_dds(allocator_default, "data/container.dds");
+    texture perlin = load_dds(allocator_default, "data/perlin.dds");
     uint32_t gl_perlin = 0;
     glGenTextures(1, &gl_perlin);
     glActiveTexture(GL_TEXTURE0);
