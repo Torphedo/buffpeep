@@ -10,3 +10,5 @@ add_subdirectory(gl_box)
 target_include_directories(gl_box PRIVATE "ext/glfw" "ext/glew/")
 target_compile_definitions(gl_box PRIVATE CMAKE_SRC_ROOT="${CMAKE_SOURCE_DIR}")
 
+file(COPY "data/" DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/gl_box/data)
+
