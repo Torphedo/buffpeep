@@ -7,15 +7,6 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-// Windows-only (for Sleep())
-// #include <synchapi.h>
-
-#include "cglm/affine-mat.h"
-#include "cglm/affine-pre.h"
-#include "cglm/affine.h"
-#include "cglm/clipspace/persp_rh_no.h"
-#include "cglm/mat4.h"
-#include "cglm/util.h"
 #include "types.h"
 #include "shader.h"
 #include "image.h"
@@ -27,26 +18,56 @@ typedef struct {
 }vertex;
 
 vertex quad_vertices[] = {
-  { .position = {0.5f, 0.5f, 0.0f},
+  { .position = {0.5f, 0.5f, 0.25f},
     .tex_coord = {1.0f, 1.0f}
   },
   {
-    .position = {0.5f, -0.5f, 0.0f},
+    .position = {0.5f, -0.5f, 0.25f},
     .tex_coord = {1.0f, 0.0f}
   },
   {
-    .position = {-0.5f, -0.5f, 0.0f},
+    .position = {-0.5f, -0.5f, 0.25f},
     .tex_coord = {0.0f, 0.0f}
   },
   {
-    .position = {-0.5f,  0.5f, 0.0f},
+    .position = {-0.5f,  0.5f, 0.25f},
+    .tex_coord = {0.0f, 1.0f}
+  },
+  { .position = {0.5f, 0.5f, -0.25f},
+    .tex_coord = {1.0f, 1.0f}
+  },
+  {
+    .position = {0.5f, -0.5f, -0.25f},
+    .tex_coord = {1.0f, 0.0f}
+  },
+  {
+    .position = {-0.5f, -0.5f, -0.25f},
+    .tex_coord = {0.0f, 0.0f}
+  },
+  {
+    .position = {-0.5f,  0.5f, -0.25f},
     .tex_coord = {0.0f, 1.0f}
   }
 };
 
 uint32_t quad_indices[] = {
   0, 1, 3,
-  1, 2, 3
+  1, 2, 3,
+
+  0, 1, 4,
+  1, 4, 5,
+
+  1, 2, 5,
+  2, 5, 6,
+
+  2, 3, 6,
+  3, 6, 7,
+
+  3, 4, 7,
+  4, 3, 0,
+
+  4, 5, 7,
+  5, 6, 7
 };
 
 void frame_resize_callback(GLFWwindow* window, int width, int height) {
@@ -138,6 +159,7 @@ int main() {
     glDeleteShader(vertex_shader);
     glDeleteShader(fragment_shader);
 
+    glEnable(GL_DEPTH_TEST);
     // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     
 
@@ -165,7 +187,7 @@ int main() {
 
       // Clear framebuffer
       glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-      glClear(GL_COLOR_BUFFER_BIT);
+      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
       // Quad transforms (updated each frame)
       mat4 model = {0};
