@@ -3,4 +3,4 @@ add_executable(gl_box
   "src/shader.c"
   "src/image.c"
 )
-target_link_libraries(gl_box PRIVATE glfw glad)
+target_link_libraries(gl_box PRIVATE glfw glad cglm)
