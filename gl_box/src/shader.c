@@ -42,7 +42,7 @@ gl_obj compile_shader(const char* path, GLenum shader_type) {
   if (!success) {
     char log[512] = {0};
     glGetShaderInfoLog(shader, sizeof(log), NULL, log);
-    printf("compile_shader(): Failed to compile shader.\n%s\n", log);
+    printf("compile_shader(): Failed to compile shader %s.\n%s\n", path, log);
   }
   free(shader_source);
   return shader;
