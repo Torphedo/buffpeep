@@ -3,12 +3,18 @@
 #include <string.h>
 #include <sys/stat.h>
 
+#include <cglm/cglm.h>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
 // Windows-only (for Sleep())
 // #include <synchapi.h>
 
+#include "cglm/affine-mat.h"
+#include "cglm/affine-pre.h"
+#include "cglm/affine.h"
+#include "cglm/mat4.h"
+#include "cglm/util.h"
 #include "types.h"
 #include "shader.h"
 #include "image.h"
@@ -125,8 +131,8 @@ int main() {
 
     // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     
+
     // Load texture(s)
-    
     texture perlin = load_dds(allocator_default, "data/container.dds");
     uint32_t gl_perlin = 0;
     glGenTextures(1, &gl_perlin);
@@ -151,6 +157,15 @@ int main() {
       // Clear framebuffer
       glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
       glClear(GL_COLOR_BUFFER_BIT);
+
+      // Quad transforms (updated each frame)
+      vec4 vec = {1.0f, 0.0f, 0.0f, 1.0f};
+      mat4 trans = {0};
+      glm_mat4_identity(trans); // Create identity matrix
+      glm_rotate(trans, glfwGetTime(), (vec3){0.0f, 0.0f, 1.0f}); // Use time as rotation
+      glm_scale(trans, (vec3){0.5f, 0.5f, 0.5f});
+      gl_obj transform_location = glGetUniformLocation(shader_program, "transform");
+      glUniformMatrix4fv(transform_location, 1, GL_FALSE, (const float*)&trans);
 
       // Draw
       glUseProgram(shader_program);
