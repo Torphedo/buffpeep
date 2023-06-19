@@ -11,12 +11,19 @@
 
 #include "types.h"
 #include "shader.h"
+#include "image.h"
 
-vec3f quad_vertices[] = {
-  { 0.5f,  0.5f, 0.0f}, {1.0f, 0.0f, 0.0f},
-  { 0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f},
-  {-0.5f, -0.5f, 0.0f}, {0.0f, 0.0f, 1.0f},
-  {-0.5f,  0.5f, 0.0f}, {0.0f, 0.0f, 0.0f}
+typedef struct {
+  vec3f position;
+  vec3f color;
+  vec2f tex_coord;
+}vertex;
+
+vertex quad_vertices[] = {
+  { 0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f},
+  { 0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f},
+  {-0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f},
+  {-0.5f,  0.5f, 0.0f,   0.0f, 0.0f, 0.0f,   0.0f, 1.0f}
 };
 
 uint32_t quad_indices[] = {
@@ -75,10 +82,12 @@ int main() {
   glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(quad_indices), &quad_indices, GL_STATIC_DRAW);
 
   // Create vertex layout
-  glVertexAttribPointer(0, sizeof(vec3f) / sizeof(float), GL_FLOAT, GL_FALSE, sizeof(vec3f) * 2, NULL);
+  glVertexAttribPointer(0, sizeof(vec3f) / sizeof(float), GL_FLOAT, GL_FALSE, sizeof(vertex), (void*)offsetof(vertex, position));
   glEnableVertexAttribArray(0);
-  glVertexAttribPointer(1, sizeof(vec3f) / sizeof(float), GL_FLOAT, GL_FALSE, sizeof(vec3f) * 2, (void*)sizeof(vec3f));
+  glVertexAttribPointer(1, sizeof(vec3f) / sizeof(float), GL_FLOAT, GL_FALSE, sizeof(vertex), (void*)offsetof(vertex, color));
   glEnableVertexAttribArray(1);
+  glVertexAttribPointer(2, sizeof(vec2f) / sizeof(float), GL_FLOAT, GL_FALSE, sizeof(vertex), (void*)offsetof(vertex, tex_coord));
+  glEnableVertexAttribArray(2);
 
   // Load and compile shaders
   char vert_path[256] = CMAKE_SRC_ROOT;
@@ -114,6 +123,25 @@ int main() {
     glDeleteShader(fragment_shader);
 
     // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    
+    // Load texture(s)
+    
+    texture perlin = load_dds(allocator_default, "data/perlin.dds");
+    uint32_t gl_perlin = 0;
+    glGenTextures(1, &gl_perlin);
+    glBindTexture(GL_TEXTURE_2D, gl_perlin);
+
+    // Wrapping & filtering settings
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    if (perlin.data != NULL) {
+      printf("main(): Binding loaded image data.\n");
+      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, perlin.width, perlin.height, 0, GL_RGB, GL_UNSIGNED_BYTE, perlin.data);
+      glGenerateMipmap(GL_TEXTURE_2D);
+    }
 
     // Keep window alive and updated
     while (!glfwWindowShouldClose(window)) {
@@ -127,6 +155,7 @@ int main() {
 
       // Draw
       glUseProgram(shader_program);
+      glBindTexture(GL_TEXTURE_2D, gl_perlin);
       glBindVertexArray(vertex_array);
       glDrawElements(GL_TRIANGLES, sizeof(quad_indices) / sizeof(*quad_indices), GL_UNSIGNED_INT, 0);
 
