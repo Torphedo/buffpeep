@@ -13,6 +13,7 @@
 #include "cglm/affine-mat.h"
 #include "cglm/affine-pre.h"
 #include "cglm/affine.h"
+#include "cglm/clipspace/persp_rh_no.h"
 #include "cglm/mat4.h"
 #include "cglm/util.h"
 #include "types.h"
@@ -159,13 +160,25 @@ int main() {
       glClear(GL_COLOR_BUFFER_BIT);
 
       // Quad transforms (updated each frame)
-      vec4 vec = {1.0f, 0.0f, 0.0f, 1.0f};
-      mat4 trans = {0};
-      glm_mat4_identity(trans); // Create identity matrix
-      glm_rotate(trans, glfwGetTime(), (vec3){0.0f, 0.0f, 1.0f}); // Use time as rotation
-      glm_scale(trans, (vec3){0.5f, 0.5f, 0.5f});
-      gl_obj transform_location = glGetUniformLocation(shader_program, "transform");
-      glUniformMatrix4fv(transform_location, 1, GL_FALSE, (const float*)&trans);
+      mat4 model = {0};
+      glm_mat4_identity(model); // Create identity matrix
+      glm_rotate(model, glm_rad(-55.0f), (vec3){1.0f, 0.0f, 0.0f});
+      glm_rotate(model, glfwGetTime(), (vec3){0.0f, 0.0f, 1.0f});
+      gl_obj u_model = glGetUniformLocation(shader_program, "model");
+      glUniformMatrix4fv(u_model, 1, GL_FALSE, (const float*)&model);
+
+      mat4 view = {0};
+      glm_mat4_identity(view); // Create identity matrix
+      glm_translate(view, (vec3){0.0f, 0.0f, -3.0f});
+      gl_obj u_view = glGetUniformLocation(shader_program, "view");
+      glUniformMatrix4fv(u_view, 1, GL_FALSE, (const float*)&view);
+
+      // Create & upload projection matrix
+      const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+      mat4 projection = {0};
+      glm_perspective_rh_no(glm_rad(70), (float)mode->width / (float)mode->height, 0.1f, 1000.0f, projection);
+      gl_obj u_projection = glGetUniformLocation(shader_program, "projection");
+      glUniformMatrix4fv(u_projection, 1, GL_FALSE, (const float*)&projection);
 
       // Draw
       glUseProgram(shader_program);
