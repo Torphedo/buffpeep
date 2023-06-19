@@ -38,8 +38,8 @@ int main() {
   // Setup GLFW with OpenGL Core 3.3
   glfwInit();
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-  glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+  // glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
   GLFWwindow* window = glfwCreateWindow(width, height, "Hello Triangle", NULL, NULL);
   if (window == NULL) {
     printf("main(): Failed to create GLFW window of size %dx%d.\n", width, height);
