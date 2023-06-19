@@ -23,15 +23,25 @@
 
 typedef struct {
   vec3f position;
-  vec3f color;
   vec2f tex_coord;
 }vertex;
 
 vertex quad_vertices[] = {
-  { 0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f},
-  { 0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f},
-  {-0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f},
-  {-0.5f,  0.5f, 0.0f,   0.0f, 0.0f, 0.0f,   0.0f, 1.0f}
+  { .position = {0.5f, 0.5f, 0.0f},
+    .tex_coord = {1.0f, 1.0f}
+  },
+  {
+    .position = {0.5f, -0.5f, 0.0f},
+    .tex_coord = {1.0f, 0.0f}
+  },
+  {
+    .position = {-0.5f, -0.5f, 0.0f},
+    .tex_coord = {0.0f, 0.0f}
+  },
+  {
+    .position = {-0.5f,  0.5f, 0.0f},
+    .tex_coord = {0.0f, 1.0f}
+  }
 };
 
 uint32_t quad_indices[] = {
@@ -92,10 +102,8 @@ int main() {
   // Create vertex layout
   glVertexAttribPointer(0, sizeof(vec3f) / sizeof(float), GL_FLOAT, GL_FALSE, sizeof(vertex), (void*)offsetof(vertex, position));
   glEnableVertexAttribArray(0);
-  glVertexAttribPointer(1, sizeof(vec3f) / sizeof(float), GL_FLOAT, GL_FALSE, sizeof(vertex), (void*)offsetof(vertex, color));
+  glVertexAttribPointer(1, sizeof(vec2f) / sizeof(float), GL_FLOAT, GL_FALSE, sizeof(vertex), (void*)offsetof(vertex, tex_coord));
   glEnableVertexAttribArray(1);
-  glVertexAttribPointer(2, sizeof(vec2f) / sizeof(float), GL_FLOAT, GL_FALSE, sizeof(vertex), (void*)offsetof(vertex, tex_coord));
-  glEnableVertexAttribArray(2);
 
   // Load and compile shaders
   char vert_path[256] = CMAKE_SRC_ROOT;
@@ -176,7 +184,7 @@ int main() {
       // Create & upload projection matrix
       const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
       mat4 projection = {0};
-      glm_perspective_rh_no(glm_rad(70), (float)mode->width / (float)mode->height, 0.1f, 1000.0f, projection);
+      glm_perspective_rh_no(glm_rad(45), (float)mode->width / (float)mode->height, 0.1f, 1000.0f, projection);
       gl_obj u_projection = glGetUniformLocation(shader_program, "projection");
       glUniformMatrix4fv(u_projection, 1, GL_FALSE, (const float*)&projection);
 
