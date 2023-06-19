@@ -127,7 +127,7 @@ int main() {
     
     // Load texture(s)
     
-    texture perlin = load_dds(allocator_default, "data/perlin.dds");
+    texture perlin = load_dds(allocator_default, "data/container.dds");
     uint32_t gl_perlin = 0;
     glGenTextures(1, &gl_perlin);
     glActiveTexture(GL_TEXTURE0);
@@ -141,7 +141,7 @@ int main() {
 
     if (perlin.data != NULL) {
       LOG_MSG(info, "Binding loaded image data.\n");
-      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, perlin.width, perlin.height, 0, GL_RGB, GL_UNSIGNED_BYTE, perlin.data);
+      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, perlin.width, perlin.height, 0, GL_BGR, GL_UNSIGNED_BYTE, perlin.data);
       glGenerateMipmap(GL_TEXTURE_2D);
     }
 
