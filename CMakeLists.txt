@@ -6,7 +6,7 @@ set(CMAKE_C_STANDARD 99)
 add_subdirectory(ext/cglm)
 option(CGLM_SHARED "Shared build" OFF)
 option(CGLM_STATIC "Static build" ON)
-option(CGLM_USE_C99 "" ON)
+option(CGLM_USE_C99 "" OFF)
 option(CGLM_USE_TEST "Enable Tests" OFF) # for make check - make test
 
 add_subdirectory(ext/glad)

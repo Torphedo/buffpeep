@@ -3,10 +3,11 @@
 #include <string.h>
 #include <sys/stat.h>
 
-#include <cglm/cglm.h>
+#include <cglm/struct.h>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#include "camera.h"
 #include "types.h"
 #include "shader.h"
 #include "image.h"
@@ -18,34 +19,34 @@ typedef struct {
 }vertex;
 
 vertex quad_vertices[] = {
-  { .position = {0.5f, 0.5f, 0.25f},
+  { .position = {0.5f, 0.5f, 0.5f},
     .tex_coord = {1.0f, 1.0f}
   },
   {
-    .position = {0.5f, -0.5f, 0.25f},
+    .position = {0.5f, -0.5f, 0.5f},
     .tex_coord = {1.0f, 0.0f}
   },
   {
-    .position = {-0.5f, -0.5f, 0.25f},
+    .position = {-0.5f, -0.5f, 0.5f},
     .tex_coord = {0.0f, 0.0f}
   },
   {
-    .position = {-0.5f,  0.5f, 0.25f},
+    .position = {-0.5f,  0.5f, 0.5f},
     .tex_coord = {0.0f, 1.0f}
   },
-  { .position = {0.5f, 0.5f, -0.25f},
+  { .position = {0.5f, 0.5f, -0.5f},
     .tex_coord = {1.0f, 1.0f}
   },
   {
-    .position = {0.5f, -0.5f, -0.25f},
+    .position = {0.5f, -0.5f, -0.5f},
     .tex_coord = {1.0f, 0.0f}
   },
   {
-    .position = {-0.5f, -0.5f, -0.25f},
+    .position = {-0.5f, -0.5f, -0.5f},
     .tex_coord = {0.0f, 0.0f}
   },
   {
-    .position = {-0.5f,  0.5f, -0.25f},
+    .position = {-0.5f,  0.5f, -0.5f},
     .tex_coord = {0.0f, 1.0f}
   }
 };
@@ -197,9 +198,15 @@ int main() {
       gl_obj u_model = glGetUniformLocation(shader_program, "model");
       glUniformMatrix4fv(u_model, 1, GL_FALSE, (const float*)&model);
 
+
       mat4 view = {0};
       glm_mat4_identity(view); // Create identity matrix
-      glm_translate(view, (vec3){0.0f, 0.0f, -3.0f});
+
+      const float radius = 2.7f;
+      camera_pos.x = sin(glfwGetTime()) * radius;
+      camera_pos.z = cos(glfwGetTime()) * radius;
+      glm_lookat((float*)&camera_pos, camera_target, camera_up, view);
+
       gl_obj u_view = glGetUniformLocation(shader_program, "view");
       glUniformMatrix4fv(u_view, 1, GL_FALSE, (const float*)&view);
 
@@ -214,6 +221,14 @@ int main() {
       glUseProgram(shader_program);
       glBindTexture(GL_TEXTURE_2D, gl_perlin);
       glBindVertexArray(vertex_array);
+      glDrawElements(GL_TRIANGLES, sizeof(quad_indices) / sizeof(*quad_indices), GL_UNSIGNED_INT, 0);
+
+
+      // Quad transforms (updated each frame)
+      glm_mat4_identity(model); // Create identity matrix
+      glm_rotate(model, glm_rad(29.0f), (vec3){0.7f, 1.0f, 0.2f});
+      glm_translate(model, (vec3){1.2f, 0.2f, 0.5f});
+      glUniformMatrix4fv(u_model, 1, GL_FALSE, (const float*)&model);
       glDrawElements(GL_TRIANGLES, sizeof(quad_indices) / sizeof(*quad_indices), GL_UNSIGNED_INT, 0);
 
       glfwSwapBuffers(window);
