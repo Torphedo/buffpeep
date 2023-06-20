@@ -162,7 +162,6 @@ int main() {
 
     glEnable(GL_DEPTH_TEST);
     // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    
 
     // Load texture(s)
     texture perlin = load_dds(allocator_default, "data/perlin.dds");
@@ -183,6 +182,8 @@ int main() {
       glGenerateMipmap(GL_TEXTURE_2D);
     }
 
+    glfwSetKeyCallback(window, camera_key_callback);
+
     // Keep window alive and updated
     while (!glfwWindowShouldClose(window)) {
 
@@ -202,10 +203,8 @@ int main() {
       mat4 view = {0};
       glm_mat4_identity(view); // Create identity matrix
 
-      const float radius = 2.7f;
-      camera_pos.x = sin(glfwGetTime()) * radius;
-      camera_pos.z = cos(glfwGetTime()) * radius;
-      glm_lookat((float*)&camera_pos, camera_target, camera_up, view);
+      update_camera();
+      glm_lookat((float*)&camera_pos, (float*)&camera_target, camera_up, view);
 
       gl_obj u_view = glGetUniformLocation(shader_program, "view");
       glUniformMatrix4fv(u_view, 1, GL_FALSE, (const float*)&view);
@@ -222,7 +221,6 @@ int main() {
       glBindTexture(GL_TEXTURE_2D, gl_perlin);
       glBindVertexArray(vertex_array);
       glDrawElements(GL_TRIANGLES, sizeof(quad_indices) / sizeof(*quad_indices), GL_UNSIGNED_INT, 0);
-
 
       // Quad transforms (updated each frame)
       glm_mat4_identity(model); // Create identity matrix
