@@ -10,6 +10,13 @@ void update_camera() {
   camera_target.x += 0.1f;
 }
 
+// If we want the camera movement to always be relative to the view (e.g. for a
+// freecam-style flying controller), then we'll need a "camera front" offset
+// for the camera to look at, then move along the local axes.
+//
+// But since we'll probably need a third-person orbiting camera, we need to add
+// a normalized camera position vector to the camera target, then just look at
+// the target. To rotate, we just add to the position vector and normalize it.
 void camera_key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
   if (action == GLFW_PRESS || action == GLFW_REPEAT) {
     switch (key) {
