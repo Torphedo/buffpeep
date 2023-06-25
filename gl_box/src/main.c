@@ -7,6 +7,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#include "allocator.h"
 #include "camera.h"
 #include "types.h"
 #include "shader.h"
@@ -130,11 +131,11 @@ int main() {
   // Load and compile shaders
   char vert_path[256] = CMAKE_SRC_ROOT;
   strcat(vert_path, "/gl_box/src/gl/vertex.glsl");
-  gl_obj vertex_shader = compile_shader(vert_path, GL_VERTEX_SHADER);
+  gl_obj vertex_shader = compile_shader(allocator_default, vert_path, GL_VERTEX_SHADER);
 
   char frag_path[256] = CMAKE_SRC_ROOT;
   strcat(frag_path, "/gl_box/src/gl/fragment.glsl");
-  gl_obj fragment_shader = compile_shader(frag_path, GL_FRAGMENT_SHADER);
+  gl_obj fragment_shader = compile_shader(allocator_default, frag_path, GL_FRAGMENT_SHADER);
 
   if (vertex_shader == 0 || fragment_shader == 0) {
     LOG_MSG(error, "failed to compile shaders.\n");
