@@ -104,5 +104,9 @@ void gl_debug_setup() {
             // Don't filter out any messages
             glDebugMessageControlARB(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, NULL, GL_TRUE);
         }
+        else {
+            LOG_MSG(error, "It looks like we're not in a debug context...");
+            printf(" make sure to use a GLFW window hint to enable the debug context if you want debug messages.\n");
+        }
     }
 }
