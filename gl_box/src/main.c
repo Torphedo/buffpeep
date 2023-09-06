@@ -7,6 +7,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#include "gl_debug.h"
 #include "allocator.h"
 #include "camera.h"
 #include "types.h"
@@ -88,6 +89,10 @@ int main() {
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+  // Comment this out to disable debug output
+  glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
+
   GLFWwindow* window = glfwCreateWindow(width, height, "Hello Triangle", NULL, NULL);
   if (window == NULL) {
     LOG_MSG(error, "failed to create GLFW window of size %dx%d.\n", width, height);
@@ -101,6 +106,11 @@ int main() {
     LOG_MSG(error, "failed to initialize GLAD for OpenGL Core 3.3.\n");
     return 1;
   }
+
+  gl_debug_setup();
+  // Example code that will trigger a critical debug message
+  // glBindBuffer(GL_VERTEX_ARRAY_BINDING, 0);
+
   // Set OpenGL viewport to size of window, handle resizing
   glViewport(0, 0, width, height);
   glfwSetFramebufferSizeCallback(window, frame_resize_callback);
