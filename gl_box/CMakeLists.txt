@@ -4,5 +4,6 @@ add_executable(gl_box
   "src/image.c"
   "src/camera.c"
   "src/gl_debug.c"
+  "src/input.c"
 )
 target_link_libraries(gl_box PRIVATE glfw glad)

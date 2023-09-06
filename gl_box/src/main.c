@@ -14,6 +14,7 @@
 #include "shader.h"
 #include "image.h"
 #include "logging.h"
+#include "input.h"
 
 typedef struct {
   vec3f position;
@@ -193,7 +194,7 @@ int main() {
       glGenerateMipmap(GL_TEXTURE_2D);
     }
 
-    glfwSetKeyCallback(window, camera_key_callback);
+    glfwSetKeyCallback(window, update_input_callback);
 
     // Keep window alive and updated
     while (!glfwWindowShouldClose(window)) {

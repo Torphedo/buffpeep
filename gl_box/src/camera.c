@@ -3,6 +3,7 @@
 
 #include "logging.h"
 #include "camera.h"
+#include "input.h"
 
 vec3s camera_pos = {0};
 vec3s camera_target = {0};
@@ -10,8 +11,19 @@ vec3s camera_target = {0};
 vec3s camera_orbit_pos = {0};
 
 const float radius = 4.0f;
+const float orbit_speed = 0.05f;
 
 void update_camera() {
+  // Update with current input.
+  camera_orbit_pos.y += orbit_speed * input.w;
+  camera_orbit_pos.y -= orbit_speed * input.s;
+
+  camera_orbit_pos.x -= orbit_speed * input.a;
+  camera_orbit_pos.z -= orbit_speed * input.a;
+
+  camera_orbit_pos.x += orbit_speed * input.d;
+  camera_orbit_pos.z += orbit_speed * input.d;
+
   camera_pos.x = sin(camera_orbit_pos.x) * radius;
   camera_pos.z = cos(camera_orbit_pos.z) * radius;
 
@@ -22,26 +34,5 @@ void update_camera() {
   camera_pos.y = sin(camera_orbit_pos.y) * radius;
 
   // TODO: Implement flying freecam-style camera [low priority]
-}
-
-void camera_key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
-  if (action == GLFW_PRESS || action == GLFW_REPEAT) {
-    switch (key) {
-      case GLFW_KEY_W:
-        camera_orbit_pos.y += 0.1f;
-        break;
-      case GLFW_KEY_S:
-        camera_orbit_pos.y -= 0.1f;
-        break;
-      case GLFW_KEY_A:
-        camera_orbit_pos.x -= 0.1f;
-        camera_orbit_pos.z -= 0.1f;
-        break;
-      case GLFW_KEY_D:
-        camera_orbit_pos.x += 0.1f;
-        camera_orbit_pos.z += 0.1f;
-        break;
-    }
-  }
 }
 
