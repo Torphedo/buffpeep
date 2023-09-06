@@ -88,7 +88,7 @@ void APIENTRY gl_debug_msg(GLenum source, GLenum type, unsigned int id, GLenum s
 
 void gl_debug_setup() {
     if (!glfwExtensionSupported("GL_ARB_debug_output")) {
-        LOG_MSG(warning, "Missing GL_ARB_debug_output, debug messages will be missing.\n");
+        LOG_MSG(warning, "Missing GL_ARB_debug_output extension, debug messages will be missing.\n");
         return;
     }
     else {
@@ -105,8 +105,8 @@ void gl_debug_setup() {
             glDebugMessageControlARB(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, NULL, GL_TRUE);
         }
         else {
-            LOG_MSG(error, "It looks like we're not in a debug context...");
-            printf(" make sure to use a GLFW window hint to enable the debug context if you want debug messages.\n");
+            LOG_MSG(error, "It looks like we're not in a debug context...\n");
+            LOG_MSG(info, "Use a GLFW window hint to enable the debug context first.\n");
         }
     }
 }
