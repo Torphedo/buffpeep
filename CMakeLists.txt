@@ -9,7 +9,7 @@ add_subdirectory(src)
 
 target_include_directories(gl_box PRIVATE
   "ext/glfw"
-  "ext/glew/"
+  "ext/glad/"
   "ext/cglm/include"
 )
 target_compile_definitions(gl_box PRIVATE CMAKE_SRC_ROOT="${CMAKE_SOURCE_DIR}")
