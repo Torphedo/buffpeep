@@ -215,8 +215,7 @@ int main() {
       mat4 view = {0};
       glm_mat4_identity(view); // Create identity matrix
 
-      update_camera();
-      glm_lookat((float*)&camera_pos, (float*)&camera_target, camera_up, view);
+      update_camera(&view);
 
       gl_obj u_view = glGetUniformLocation(shader_program, "view");
       glUniformMatrix4fv(u_view, 1, GL_FALSE, (const float*)&view);
