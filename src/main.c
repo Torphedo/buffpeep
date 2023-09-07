@@ -141,11 +141,11 @@ int main() {
 
   // Load and compile shaders
   char vert_path[256] = CMAKE_SRC_ROOT;
-  strcat(vert_path, "/gl_box/src/gl/vertex.glsl");
+  strcat(vert_path, "/src/gl/vertex.glsl");
   gl_obj vertex_shader = compile_shader(allocator_default, vert_path, GL_VERTEX_SHADER);
 
   char frag_path[256] = CMAKE_SRC_ROOT;
-  strcat(frag_path, "/gl_box/src/gl/fragment.glsl");
+  strcat(frag_path, "/src/gl/fragment.glsl");
   gl_obj fragment_shader = compile_shader(allocator_default, frag_path, GL_FRAGMENT_SHADER);
 
   if (vertex_shader == 0 || fragment_shader == 0) {
