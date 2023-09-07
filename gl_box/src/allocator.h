@@ -1,6 +1,4 @@
 #pragma once
-#include <stdint.h>
-#include <stddef.h>
 #include <malloc.h>
 
 // Normally we shouldn't use the _t, but this lets functions refer to their
