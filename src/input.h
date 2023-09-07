@@ -136,10 +136,10 @@ typedef struct {
     bool right_super: 1;
     bool menu: 1;
 
-	bool shift: 1;
-	bool control: 1;
-	bool alt: 1;
-	bool super: 1;
+    bool shift: 1;
+    bool control: 1;
+    bool alt: 1;
+    bool super: 1;
 }input_internal;
 
 // The global input struct our callback will update

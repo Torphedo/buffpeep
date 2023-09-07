@@ -46,49 +46,49 @@ typedef struct dds_header {
 }dds_header;
 
 bool has_flag(u32 input, u32 flag) {
-  return (input ^ flag) != input;
+    return (input ^ flag) != input;
 }
 
 texture load_dds(allocator_t allocator, char* filename) {
-  texture output = {0};
-  static dds_header header = {0};
-  FILE* file = fopen(filename, "rb");
-  if (file == NULL) {
-    LOG_MSG(error, "failed to open %s\n", filename);
-    return output;
-  }
-  LOG_MSG(info, "loading %s...\n", filename);
-
-  fread(&header, sizeof(header), 1, file);
-
-  u32 flags = header.pixel_format.flags;
-  if (has_flag(flags, DDPF_RGB) || has_flag(flags, DDPF_LUMINANCE) || has_flag(flags, DDPF_YUV) || has_flag(flags, DDPF_ALPHA)) {
-    output.bits_per_pixel = header.pixel_format.bits_per_pixel;
-  }
-  else if (has_flag(flags, DDPF_ALPHAPIXELS)) {
-    output.bits_per_pixel = 32;
-  }
-  else if (has_flag(flags, DDPF_FOURCC)) {
-    // Ignore char code of "DX10" indicating more advanced formats like BC7, for now
-    output.bits_per_pixel = 16;
-  }
-
-  u32 texture_size = header.width * header.height * (output.bits_per_pixel / 8);
-  output.data = allocator.calloc(1, texture_size);
-  if (output.data == NULL) {
+    texture output = {0};
+    static dds_header header = {0};
+    FILE* file = fopen(filename, "rb");
+    if (file == NULL) {
+        LOG_MSG(error, "failed to open %s\n", filename);
+        return output;
+    }
+    LOG_MSG(info, "loading %s...\n", filename);
+    
+    fread(&header, sizeof(header), 1, file);
+    
+    u32 flags = header.pixel_format.flags;
+    if (has_flag(flags, DDPF_RGB) || has_flag(flags, DDPF_LUMINANCE) || has_flag(flags, DDPF_YUV) || has_flag(flags, DDPF_ALPHA)) {
+        output.bits_per_pixel = header.pixel_format.bits_per_pixel;
+    }
+    else if (has_flag(flags, DDPF_ALPHAPIXELS)) {
+        output.bits_per_pixel = 32;
+    }
+    else if (has_flag(flags, DDPF_FOURCC)) {
+        // Ignore char code of "DX10" indicating more advanced formats like BC7, for now
+        output.bits_per_pixel = 16;
+    }
+    
+    u32 texture_size = header.width * header.height * (output.bits_per_pixel / 8);
+    output.data = allocator.calloc(1, texture_size);
+    if (output.data == NULL) {
+        fclose(file);
+        return output;
+    }
+    
+    fread(output.data, texture_size, 1, file);
     fclose(file);
+    
+    output.height = header.height;
+    output.width = header.width;
+    output.mip_level = header.mipmap_count;
+    
+    LOG_MSG(info, "%d bits per pixel\n", output.bits_per_pixel);
+    LOG_MSG(info, "%dx%d\n", output.width, output.height);
     return output;
-  }
-
-  fread(output.data, texture_size, 1, file);
-  fclose(file);
-
-  output.height = header.height;
-  output.width = header.width;
-  output.mip_level = header.mipmap_count;
-
-  LOG_MSG(info, "%d bits per pixel\n", output.bits_per_pixel);
-  LOG_MSG(info, "%dx%d\n", output.width, output.height);
-  return output;
 }
 

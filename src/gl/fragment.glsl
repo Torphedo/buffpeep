@@ -6,6 +6,6 @@ in vec2 tex_coord;
 uniform sampler2D perlin;
 
 void main() {
-  fragment_rgba = texture(perlin, tex_coord);
+    fragment_rgba = texture(perlin, tex_coord);
 }
 
