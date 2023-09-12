@@ -78,6 +78,10 @@ void frame_resize_callback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
 }
 
+void glfw_error(int err_code, const char* msg) {
+    LOG_MSG(error, "[code %d] %s\n", err_code, msg);
+}
+
 int main() {
     // Remove the console window on startup on Windows
     // FreeConsole();
@@ -85,6 +89,8 @@ int main() {
     static const s32 width = 800;
     static const s32 height = 600;
     
+    glfwSetErrorCallback(glfw_error);
+
     // Setup GLFW with OpenGL Core 3.3
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
