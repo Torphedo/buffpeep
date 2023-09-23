@@ -49,7 +49,7 @@ bool has_flag(u32 input, u32 flag) {
     return (input ^ flag) != input;
 }
 
-texture load_dds(allocator_t allocator, char* filename) {
+texture image_dds_load(allocator_t allocator, char* filename) {
     texture output = {0};
     static dds_header header = {0};
     FILE* file = fopen(filename, "rb");

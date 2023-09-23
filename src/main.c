@@ -148,11 +148,11 @@ int main() {
     // Load and compile shaders
     char vert_path[256] = CMAKE_SRC_ROOT;
     strcat(vert_path, "/src/gl/vertex.glsl");
-    gl_obj vertex_shader = compile_shader(allocator_default, vert_path, GL_VERTEX_SHADER);
+    gl_obj vertex_shader = shader_compile(allocator_default, vert_path, GL_VERTEX_SHADER);
     
     char frag_path[256] = CMAKE_SRC_ROOT;
     strcat(frag_path, "/src/gl/fragment.glsl");
-    gl_obj fragment_shader = compile_shader(allocator_default, frag_path, GL_FRAGMENT_SHADER);
+    gl_obj fragment_shader = shader_compile(allocator_default, frag_path, GL_FRAGMENT_SHADER);
     
     if (vertex_shader == 0 || fragment_shader == 0) {
         LOG_MSG(error, "failed to compile shaders.\n");
@@ -182,7 +182,7 @@ int main() {
         // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         
         // Load texture(s)
-        texture perlin = load_dds(allocator_default, "data/perlin.dds");
+        texture perlin = image_dds_load(allocator_default, "data/perlin.dds");
         u32 gl_perlin = 0;
         glGenTextures(1, &gl_perlin);
         glActiveTexture(GL_TEXTURE0);
@@ -200,7 +200,7 @@ int main() {
             glGenerateMipmap(GL_TEXTURE_2D);
         }
         
-        glfwSetKeyCallback(window, update_input_callback);
+        glfwSetKeyCallback(window, input_update);
         
         // Keep window alive and updated
         while (!glfwWindowShouldClose(window)) {
@@ -220,7 +220,7 @@ int main() {
             mat4 view = {0};
             glm_mat4_identity(view); // Create identity matrix
             
-            update_camera(&view);
+            camera_update(&view);
             
             gl_obj u_view = glGetUniformLocation(shader_program, "view");
             glUniformMatrix4fv(u_view, 1, GL_FALSE, (const float*)&view);
@@ -262,3 +262,4 @@ int main() {
     glfwTerminate();
     return 0;
 }
+

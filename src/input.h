@@ -145,5 +145,5 @@ typedef struct {
 // The global input struct our callback will update
 extern input_internal input;
 
-void update_input_callback(GLFWwindow* window, int key, int scancode, int actions, int mods);
+void input_update(GLFWwindow* window, int key, int scancode, int actions, int mods);
 

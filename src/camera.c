@@ -34,7 +34,7 @@ vec2s vec2_addmag(vec2s v, float amount) {
     return v;
 }
 
-void update_camera(mat4* view) {
+void camera_update(mat4* view) {
     vec3s camera_pos = {0};
     // Update with current input.
     camera_orbit_angles.y += orbit_speed * input.w;

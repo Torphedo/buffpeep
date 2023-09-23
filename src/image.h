@@ -12,5 +12,5 @@ typedef struct {
     u8 bits_per_pixel;
 }texture;
 
-texture load_dds(allocator_t allocator, char* filename);
+texture image_dds_load(allocator_t allocator, char* filename);
 

@@ -303,8 +303,9 @@ void set_input_by_glfw_code(int key, bool state, int mods) {
 
 }
 
-void update_input_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+void input_update(GLFWwindow* window, int key, int scancode, int action, int mods) {
     // RELEASE is 0, and both PRESS and REPEAT are > 0. So we can pass the
     // action code directly as a bool, and it will toggle the state correctly.
     set_input_by_glfw_code(key, action, mods);
 }
+
