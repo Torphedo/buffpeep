@@ -16,7 +16,7 @@ u32 file_size(const char* path) {
     return st.st_size;
 }
 
-u8* load_resource(allocator_t allocator, const char* path) {
+u8* file_load(allocator_t allocator, const char* path) {
     if (file_exists(path)) {
         u32 size = file_size(path);
         u8* buffer = allocator.calloc(1, size);

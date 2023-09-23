@@ -10,5 +10,5 @@ u32 file_size(const char* path);
 /// \param allocator The allocator to use (if you don't have one, use allocator_default)
 /// \param path Filepath
 /// \return Pointer to buffer, or NULL on failure.
-u8* load_resource(allocator_t allocator, const char* path);
+u8* file_load(allocator_t allocator, const char* path);
 

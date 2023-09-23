@@ -13,7 +13,7 @@
 #include "shader.h"
 
 gl_obj shader_compile(allocator_t allocator, const char* path, GLenum shader_type) {
-    char* shader_source = (char*)load_resource(allocator, path);
+    u8* shader_source = file_load(allocator, path);
     if (shader_source == NULL) {
         LOG_MSG(error, "failed to open GLSL source file %s\n", path);
         return 0;
