@@ -21,6 +21,11 @@ typedef struct {
     float w;
 }vec4f;
 
+typedef struct {
+    vec3f position;
+    vec2f tex_coord;
+}vertex;
+
 typedef uint64_t u64;
 typedef int64_t s64;
 typedef uint32_t u32;

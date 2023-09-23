@@ -16,11 +16,6 @@
 #include "logging.h"
 #include "input.h"
 
-typedef struct {
-    vec3f position;
-    vec2f tex_coord;
-}vertex;
-
 vertex quad_vertices[] = {
     { .position = {0.5f, 0.5f, 0.5f},
       .tex_coord = {1.0f, 1.0f}

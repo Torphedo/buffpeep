@@ -6,28 +6,11 @@
 
 #include <glad/glad.h>
 
+#include "io/file.h"
 #include "allocator.h"
 #include "types.h"
 #include "logging.h"
 #include "shader.h"
-
-// Read an entire file into a buffer. Caller is responsible for freeing the resource.
-// This is mainly used to load shader source code.
-u8* load_resource(allocator_t allocator, const char* path) {
-    struct stat st = {0};
-    bool exists = (stat(path, &st) == 0);
-    if (exists) {
-        u8* buffer = allocator.calloc(1, st.st_size);
-        FILE* resource = fopen(path, "rb");
-        if (resource != NULL && buffer != NULL) {
-            fread(buffer, st.st_size, 1, resource);
-            fclose(resource);
-            return buffer;
-        }
-    }
-    LOG_MSG(error, "%s doesn't exist.\n", path);
-    return NULL;
-}
 
 gl_obj shader_compile(allocator_t allocator, const char* path, GLenum shader_type) {
     char* shader_source = (char*)load_resource(allocator, path);
