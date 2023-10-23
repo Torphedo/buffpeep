@@ -1,7 +1,16 @@
 #pragma once
 #include <stdint.h>
 
-typedef uint32_t gl_obj;
+typedef uint64_t u64;
+typedef int64_t s64;
+typedef uint32_t u32;
+typedef int32_t s32;
+typedef uint16_t u16;
+typedef int16_t s16;
+typedef uint8_t u8;
+typedef int8_t s8;
+
+typedef u32 gl_obj;
 
 typedef struct {
     float x;
@@ -26,12 +35,9 @@ typedef struct {
     vec2f tex_coord;
 }vertex;
 
-typedef uint64_t u64;
-typedef int64_t s64;
-typedef uint32_t u32;
-typedef int32_t s32;
-typedef uint16_t u16;
-typedef int16_t s16;
-typedef uint8_t u8;
-typedef int8_t s8;
+typedef struct {
+    vertex* vertices;
+    u32 index_count;
+    u32* indices;
+}mesh;
 
