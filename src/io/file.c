@@ -17,17 +17,19 @@ u32 file_size(const char* path) {
 }
 
 u8* file_load(allocator_t allocator, const char* path) {
-    if (file_exists(path)) {
-        u32 size = file_size(path);
-        u8* buffer = allocator.calloc(1, size);
-        FILE* resource = fopen(path, "rb");
-        if (resource != NULL && buffer != NULL) {
-            fread(buffer, size, 1, resource);
-            fclose(resource);
-            return buffer;
-        }
+    if (!file_exists(path)) {
+        LOG_MSG(error, "Requested file %s does not exist.\n", path);
+        return NULL;
     }
-    LOG_MSG(error, "%s doesn't exist.\n", path);
+    u32 size = file_size(path);
+    u8* buffer = allocator.calloc(1, size);
+    FILE* resource = fopen(path, "rb");
+
+    if (resource != NULL && buffer != NULL) {
+        fread(buffer, size, 1, resource);
+        fclose(resource);
+        return buffer;
+    }
     return NULL;
 }
 
