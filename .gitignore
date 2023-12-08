@@ -5,6 +5,8 @@
 out/
 CMakeFiles/
 cmake_*/
+cmake_install.cmake
+Makefile
 *.a
 *.lib
 *.exe
