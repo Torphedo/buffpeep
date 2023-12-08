@@ -115,107 +115,110 @@ int main() {
     gl_obj fragment_shader = shader_compile(allocator_default, frag_path, GL_FRAGMENT_SHADER);
     
     if (vertex_shader == 0 || fragment_shader == 0) {
+        // All needed error information should already be given by the shader
+        // compiler function and our debug callbacks.
         LOG_MSG(error, "failed to compile shaders.\n");
+        glfwTerminate();
+        return 0;
     }
-    else {
-        // Link the compiled shaders
-        gl_obj shader_program = glCreateProgram();
-        glAttachShader(shader_program, vertex_shader);
-        glAttachShader(shader_program, fragment_shader);
-        glLinkProgram(shader_program);
-        
-        // Linker error checking
-        s32 link_success = 0;
-        glGetProgramiv(shader_program, GL_LINK_STATUS, &link_success);
-        if (!link_success) {
-            char log[512] = {0};
-            glGetProgramInfoLog(shader_program, sizeof(log), NULL, log);
-            LOG_MSG(error, "failed to link shader program.\n%s\n", log);
-        }
+
+    // Link the compiled shaders
+    gl_obj shader_program = glCreateProgram();
+    glAttachShader(shader_program, vertex_shader);
+    glAttachShader(shader_program, fragment_shader);
+    glLinkProgram(shader_program);
+
+    // Linker error checking
+    s32 link_success = 0;
+    glGetProgramiv(shader_program, GL_LINK_STATUS, &link_success);
+    if (!link_success) {
+        char log[512] = {0};
+        glGetProgramInfoLog(shader_program, sizeof(log), NULL, log);
+        LOG_MSG(error, "failed to link shader program.\n%s\n", log);
+    }
+    glUseProgram(shader_program);
+
+    // Delete the individual shaders
+    glDeleteShader(vertex_shader);
+    glDeleteShader(fragment_shader);
+
+    glEnable(GL_DEPTH_TEST);
+    // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Wireframe mode.
+
+    // Load texture(s)
+    texture perlin = image_dds_load(allocator_default, "data/perlin.dds");
+    u32 gl_perlin = 0;
+    glGenTextures(1, &gl_perlin);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, gl_perlin);
+
+    // Wrapping & filtering settings
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    if (perlin.data != NULL) {
+        LOG_MSG(info, "Binding loaded image data.\n");
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, perlin.width, perlin.height, 0, GL_BGR, GL_UNSIGNED_BYTE, perlin.data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    }
+
+    glfwSetKeyCallback(window, input_update);
+
+    // Keep window alive and updated
+    while (!glfwWindowShouldClose(window)) {
+        // Clear framebuffer
+        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        // Quad transforms (updated each frame)
+        mat4 model = {0};
+        glm_mat4_identity(model); // Create identity matrix
+        glm_rotate(model, glm_rad(-55.0f), (vec3){1.0f, 0.0f, 0.0f});
+        glm_rotate(model, glfwGetTime(), (vec3){0.0f, 0.0f, 1.0f});
+        gl_obj u_model = glGetUniformLocation(shader_program, "model");
+        glUniformMatrix4fv(u_model, 1, GL_FALSE, (const float*)&model);
+
+
+        mat4 view = {0};
+        glm_mat4_identity(view); // Create identity matrix
+
+        camera_update(&view);
+
+        gl_obj u_view = glGetUniformLocation(shader_program, "view");
+        glUniformMatrix4fv(u_view, 1, GL_FALSE, (const float*)&view);
+
+        // Create & upload projection matrix
+        const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+        mat4 projection = {0};
+        glm_perspective_rh_no(glm_rad(45), (float)mode->width / (float)mode->height, 0.1f, 1000.0f, projection);
+        gl_obj u_projection = glGetUniformLocation(shader_program, "projection");
+        glUniformMatrix4fv(u_projection, 1, GL_FALSE, (const float*)&projection);
+
+        // Draw
         glUseProgram(shader_program);
-        
-        // Delete the individual shaders
-        glDeleteShader(vertex_shader);
-        glDeleteShader(fragment_shader);
-        
-        glEnable(GL_DEPTH_TEST);
-        // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        
-        // Load texture(s)
-        texture perlin = image_dds_load(allocator_default, "data/perlin.dds");
-        u32 gl_perlin = 0;
-        glGenTextures(1, &gl_perlin);
-        glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, gl_perlin);
-        
-        // Wrapping & filtering settings
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        
-        if (perlin.data != NULL) {
-            LOG_MSG(info, "Binding loaded image data.\n");
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, perlin.width, perlin.height, 0, GL_BGR, GL_UNSIGNED_BYTE, perlin.data);
-            glGenerateMipmap(GL_TEXTURE_2D);
-        }
-        
-        glfwSetKeyCallback(window, input_update);
-        
-        // Keep window alive and updated
-        while (!glfwWindowShouldClose(window)) {
-            // Clear framebuffer
-            glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            
-            // Quad transforms (updated each frame)
-            mat4 model = {0};
-            glm_mat4_identity(model); // Create identity matrix
-            glm_rotate(model, glm_rad(-55.0f), (vec3){1.0f, 0.0f, 0.0f});
-            glm_rotate(model, glfwGetTime(), (vec3){0.0f, 0.0f, 1.0f});
-            gl_obj u_model = glGetUniformLocation(shader_program, "model");
-            glUniformMatrix4fv(u_model, 1, GL_FALSE, (const float*)&model);
-            
-            
-            mat4 view = {0};
-            glm_mat4_identity(view); // Create identity matrix
-            
-            camera_update(&view);
-            
-            gl_obj u_view = glGetUniformLocation(shader_program, "view");
-            glUniformMatrix4fv(u_view, 1, GL_FALSE, (const float*)&view);
-            
-            // Create & upload projection matrix
-            const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-            mat4 projection = {0};
-            glm_perspective_rh_no(glm_rad(45), (float)mode->width / (float)mode->height, 0.1f, 1000.0f, projection);
-            gl_obj u_projection = glGetUniformLocation(shader_program, "projection");
-            glUniformMatrix4fv(u_projection, 1, GL_FALSE, (const float*)&projection);
-            
-            // Draw
-            glUseProgram(shader_program);
-            glBindTexture(GL_TEXTURE_2D, gl_perlin);
-            glBindVertexArray(vertex_array);
-            glDrawElements(GL_TRIANGLES, sizeof(quad_indices) / sizeof(*quad_indices), GL_UNSIGNED_INT, 0);
-            
-            // Quad transforms (updated each frame)
-            glm_mat4_identity(model); // Create identity matrix
-            glm_rotate(model, glm_rad(29.0f), (vec3){0.7f, 1.0f, 0.2f});
-            glm_translate(model, (vec3){1.2f, 0.2f, 0.5f});
-            glUniformMatrix4fv(u_model, 1, GL_FALSE, (const float*)&model);
-            glDrawElements(GL_TRIANGLES, sizeof(quad_indices) / sizeof(*quad_indices), GL_UNSIGNED_INT, 0);
-            
-            glfwSwapBuffers(window);
-            glfwPollEvents();
-        }
-        // Clean up
-        glDeleteProgram(shader_program);
-        glDeleteVertexArrays(1, &vertex_array);
-        glDeleteBuffers(1, &vertex_buffer);
-        
-        if (perlin.data != NULL) {
-            free(perlin.data);
-        }
+        glBindVertexArray(vertex_array);
+        glDrawElements(GL_TRIANGLES, sizeof(quad_indices) / sizeof(*quad_indices), GL_UNSIGNED_INT, 0);
+
+        // Quad transforms (updated each frame)
+        glm_mat4_identity(model); // Create identity matrix
+        glm_rotate(model, glm_rad(29.0f), (vec3){0.7f, 1.0f, 0.2f});
+        glm_translate(model, (vec3){1.2f, 0.2f, 0.5f});
+        glUniformMatrix4fv(u_model, 1, GL_FALSE, (const float*)&model);
+        glDrawElements(GL_TRIANGLES, sizeof(quad_indices) / sizeof(*quad_indices), GL_UNSIGNED_INT, 0);
+
+        glfwSwapBuffers(window);
+        glfwPollEvents();
+    }
+    // Clean up
+    glDeleteProgram(shader_program);
+    glDeleteVertexArrays(1, &vertex_array);
+    glDeleteBuffers(1, &vertex_buffer);
+
+    if (perlin.data != NULL) {
+        free(perlin.data);
     }
     
     // Shut down
