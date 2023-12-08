@@ -9,5 +9,7 @@ add_executable(gl_box
   "logging.c"
 
   "io/file.c"
+  "io/obj.c"
+  "io/gltf.c"
 )
 target_link_libraries(gl_box PRIVATE glfw glad)

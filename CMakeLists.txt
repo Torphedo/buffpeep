@@ -11,6 +11,7 @@ target_include_directories(gl_box PRIVATE
   "ext/glfw"
   "ext/glad"
   "ext/cglm/include"
+  "ext/cgltf"
 )
 target_compile_definitions(gl_box PRIVATE CMAKE_SRC_ROOT="${CMAKE_SOURCE_DIR}")
 
