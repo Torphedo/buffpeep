@@ -128,17 +128,12 @@ int main() {
     glAttachShader(shader_program, fragment_shader);
     glLinkProgram(shader_program);
 
-    // Linker error checking
-    s32 link_success = 0;
-    glGetProgramiv(shader_program, GL_LINK_STATUS, &link_success);
-    if (!link_success) {
-        char log[512] = {0};
-        glGetProgramInfoLog(shader_program, sizeof(log), NULL, log);
-        LOG_MSG(error, "failed to link shader program.\n%s\n", log);
-    }
+
+    // Check if linking succeeded and print log if not
+    shader_link_check(shader_program);
     glUseProgram(shader_program);
 
-    // Delete the individual shaders
+    // Delete the individual shader objects
     glDeleteShader(vertex_shader);
     glDeleteShader(fragment_shader);
 

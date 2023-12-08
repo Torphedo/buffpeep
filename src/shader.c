@@ -12,6 +12,41 @@
 #include "logging.h"
 #include "shader.h"
 
+// Linker error checking
+bool shader_link_check(gl_obj shader) {
+    s32 link_success = 0;
+    glGetProgramiv(shader, GL_LINK_STATUS, &link_success);
+    if (link_success) {
+        return true;
+    }
+
+    char log_buf[1024] = {0};
+    LOG_MSG(error, "failed to link shader program. Linker log_buf: \n");
+
+    s32 log_size = 0;
+    glGetProgramiv(shader, GL_INFO_LOG_LENGTH, &log_size);
+    
+    if (log_size > sizeof(log_buf)) {
+        LOG_MSG(warning, "Abnormally large log (%d bytes) will be cut off at %d characters.\n", log_size, sizeof(log_buf));
+        LOG_MSG(info, "Uncomment heap allocation code to allow full log.\n");
+    }
+
+    /*
+    if (log_size > sizeof(log_buf)) {
+        char* log_buf = calloc(1, log_size);
+        glGetProgramInfoLog(shader, log_size, NULL, log_buf);
+        printf("%s\n", log_buf);
+        LOG_MSG(warning, "Abnormally large log_buf (%d bytes) forced a heap allocation.\n", log_size);
+        free(log_buf);
+    }
+    */
+
+    // Use stack array to print the log_buf.
+    glGetProgramInfoLog(shader, sizeof(log_buf), NULL, log_buf);
+    printf("%s\n", log_buf);
+    return false;
+}
+
 gl_obj shader_compile(allocator_t allocator, const char* path, GLenum shader_type) {
     u8* shader_source = file_load(allocator, path);
     if (shader_source == NULL) {
