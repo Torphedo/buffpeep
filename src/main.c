@@ -8,6 +8,7 @@
 #include <GLFW/glfw3.h>
 
 #include "gl_debug.h"
+#include "gl_setup.h"
 #include "allocator.h"
 #include "camera.h"
 #include "types.h"
@@ -69,53 +70,17 @@ u32 quad_indices[] = {
     5, 6, 7
 };
 
-void frame_resize_callback(GLFWwindow* window, int width, int height) {
-    glViewport(0, 0, width, height);
-}
-
-void glfw_error(int err_code, const char* msg) {
-    LOG_MSG(error, "[code %d] %s\n", err_code, msg);
-}
-
 int main() {
     // Remove the console window on startup on Windows
     // FreeConsole();
-    
+
     static const s32 width = 800;
     static const s32 height = 600;
-    
-    glfwSetErrorCallback(glfw_error);
-
-    // Setup GLFW with OpenGL Core 3.3
-    glfwInit();
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    
-    // Comment this out to disable debug output
-    glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
-    
-    GLFWwindow* window = glfwCreateWindow(width, height, "Hello Triangle", NULL, NULL);
+    GLFWwindow* window = setup_opengl(width, height, "gl_box", ENABLE_DEBUG);
     if (window == NULL) {
-        LOG_MSG(error, "failed to create GLFW window of size %dx%d.\n", width, height);
-        glfwTerminate();
+        LOG_MSG(error, "Failed to create a valid window & OpenGL context for rendering\n");
         return 1;
     }
-    
-    // Create the OpenGL context
-    glfwMakeContextCurrent(window);
-    if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)) {
-        LOG_MSG(error, "failed to initialize GLAD for OpenGL Core 3.3.\n");
-        return 1;
-    }
-    
-    gl_debug_setup();
-    // Example code that will trigger a critical debug message
-    // glBindBuffer(GL_VERTEX_ARRAY_BINDING, 0);
-    
-    // Set OpenGL viewport to size of window, handle resizing
-    glViewport(0, 0, width, height);
-    glfwSetFramebufferSizeCallback(window, frame_resize_callback);
     
     // Setup VAO to store our state
     gl_obj vertex_array = 0;

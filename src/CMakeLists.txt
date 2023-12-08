@@ -4,6 +4,7 @@ add_executable(gl_box
   "image.c"
   "camera.c"
   "gl_debug.c"
+  "gl_setup.c"
   "input.c"
   "logging.c"
 
