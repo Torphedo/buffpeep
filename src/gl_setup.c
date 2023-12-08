@@ -57,9 +57,7 @@ GLFWwindow* setup_opengl(s32 width, s32 height, const char* window_name, bool en
 
     // Set OpenGL viewport to size of window, handle resizing
     glViewport(0, 0, width, height);
-    if (glfwSetFramebufferSizeCallback(window, frame_resize_callback) == NULL) {
-        LOG_MSG(warning, "Failed to set framebuffer resize callback. Window resizing will probably be broken.\n");
-    }
+    glfwSetFramebufferSizeCallback(window, frame_resize_callback);
 
     return window;
 }
