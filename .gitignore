@@ -3,6 +3,7 @@
 
 # Build output
 out/
+zig-*/
 CMakeFiles/
 cmake_*/
 cmake_install.cmake

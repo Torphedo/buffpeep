@@ -106,11 +106,11 @@ int main() {
     glEnableVertexAttribArray(1);
     
     // Load and compile shaders
-    char vert_path[256] = CMAKE_SRC_ROOT;
+    char vert_path[256] = SRC_ROOT;
     strncat(vert_path, "/src/gl/vertex.glsl", sizeof(vert_path) -1);
     gl_obj vertex_shader = shader_compile(allocator_default, vert_path, GL_VERTEX_SHADER);
     
-    char frag_path[256] = CMAKE_SRC_ROOT;
+    char frag_path[256] = SRC_ROOT;
     strncat(frag_path, "/src/gl/fragment.glsl", sizeof(frag_path) - 1);
     gl_obj fragment_shader = shader_compile(allocator_default, frag_path, GL_FRAGMENT_SHADER);
     
