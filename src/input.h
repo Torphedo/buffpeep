@@ -1,3 +1,4 @@
+#include "types.h"
 #include <stdbool.h>
 
 #include <GLFW/glfw3.h>
@@ -140,10 +141,15 @@ typedef struct {
     bool control: 1;
     bool alt: 1;
     bool super: 1;
+    
+    vec2f cursor;
+    vec2f scroll;
 }input_internal;
 
 // The global input struct our callback will update
 extern input_internal input;
 
 void input_update(GLFWwindow* window, int key, int scancode, int actions, int mods);
+void cursor_update(GLFWwindow* window, double xpos, double ypos);
+void scroll_update(GLFWwindow* window, double x, double y);
 

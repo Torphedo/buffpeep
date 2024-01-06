@@ -81,6 +81,13 @@ int main() {
         LOG_MSG(error, "Failed to create a valid window & OpenGL context for rendering\n");
         return 1;
     }
+
+    glfwSetKeyCallback(window, input_update);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    if (glfwRawMouseMotionSupported()) {
+      glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
+    }
+
     
     // Setup VAO to store our state
     gl_obj vertex_array = 0;
@@ -158,8 +165,6 @@ int main() {
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, perlin.width, perlin.height, 0, GL_BGR, GL_UNSIGNED_BYTE, perlin.data);
         glGenerateMipmap(GL_TEXTURE_2D);
     }
-
-    glfwSetKeyCallback(window, input_update);
 
     // Keep window alive and updated
     while (!glfwWindowShouldClose(window)) {

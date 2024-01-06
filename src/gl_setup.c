@@ -4,6 +4,7 @@
 #include <GLFW/glfw3.h>
 
 #include "logging.h"
+#include "input.h"
 #include "types.h"
 #include "gl_debug.h"
 
@@ -39,6 +40,22 @@ GLFWwindow* setup_opengl(s32 width, s32 height, const char* window_name, bool en
         LOG_MSG(error, "failed to create GLFW window of size %dx%d.\n", width, height);
         glfwTerminate();
         return window;
+    }
+
+    // Start tracking input state & using virtual cursor positions.
+    glfwSetKeyCallback(window, input_update);
+    glfwSetCursorPosCallback(window, cursor_update);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetScrollCallback(window, scroll_update);
+
+    // Get non-accelerated input if possible
+    LOG_MSG(info, "Raw mouse motion ");
+    if (glfwRawMouseMotionSupported()) {
+        glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
+        printf("enabled.\n");
+    }
+    else {
+        printf("disabled.\n");
     }
     
     // Create the OpenGL context

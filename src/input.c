@@ -309,3 +309,13 @@ void input_update(GLFWwindow* window, int key, int scancode, int action, int mod
     set_input_by_glfw_code(key, action, mods);
 }
 
+void scroll_update(GLFWwindow* window, double x, double y) {
+    input.scroll.x += x;
+    input.scroll.y += y;
+}
+
+void cursor_update(GLFWwindow* window, double x, double y) {
+    input.cursor.x = x;
+    input.cursor.y = y;
+}
+
