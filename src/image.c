@@ -1,11 +1,17 @@
 #include <stdio.h>
-#include <stdint.h>
 #include <stdbool.h>
 #include <malloc.h>
 
+#include <glad/glad.h>
+#include <GL/glext.h>
+
 #include "types.h"
 #include "image.h"
+#include "file.h"
 #include "logging.h"
+
+// 32MiB image data buffer for OpenGL to copy from.
+u8 img_buf[32 * 0x400 * 0x400] = {0};
 
 typedef enum dds_format_flags {
     DDPF_ALPHAPIXELS = 0x00000001,
@@ -49,7 +55,36 @@ bool has_flag(u32 input, u32 flag) {
     return (input ^ flag) != input;
 }
 
-texture image_dds_load(allocator_t allocator, char* filename) {
+void gl_update_active_tex(texture img, bool compressed, u8 fmt) {
+    u32 res = (img.height * img.width);
+
+    if (compressed) {
+        GLenum format = 0;
+        u32 size = res;
+        switch (fmt) {
+            case DXT3:
+                format = GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
+                break;
+            case DXT5:
+                format = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
+                break;
+            default:
+                format = GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
+                size /= 2;
+                break;
+        };
+        glCompressedTexImage2D(GL_TEXTURE_2D, 0, format, img.width, img.height, 0, size, img.data);
+    }
+}
+
+u8* image_buf_load(char* filename) {
+    // TODO: If we allow loading a new texture at runtime, memset buffer to 0.
+    file_load_existing(filename, (u8*)&img_buf, sizeof(img_buf));
+
+    return (u8*)&img_buf;
+}
+
+texture image_dds_load(char* filename) {
     texture output = {0};
     static dds_header header = {0};
     FILE* file = fopen(filename, "rb");
@@ -74,7 +109,7 @@ texture image_dds_load(allocator_t allocator, char* filename) {
     }
     
     u32 texture_size = header.width * header.height * (output.bits_per_pixel / 8);
-    output.data = allocator.calloc(1, texture_size);
+    output.data = calloc(1, texture_size);
     if (output.data == NULL) {
         fclose(file);
         return output;
