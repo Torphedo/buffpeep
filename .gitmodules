@@ -4,6 +4,3 @@
 [submodule "ext/cglm"]
 	path = ext/cglm
 	url = https://github.com/recp/cglm
-[submodule "ext/cgltf"]
-	path = ext/cgltf
-	url = https://github.com/jkuhlmann/cgltf
