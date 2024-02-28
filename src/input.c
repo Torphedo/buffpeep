@@ -1,6 +1,4 @@
-#include "logging.h"
 #include "input.h"
-#include "camera.h"
 
 #include <GLFW/glfw3.h>
 
@@ -306,7 +304,9 @@ void set_input_by_glfw_code(int key, bool state, int mods) {
 void input_update(GLFWwindow* window, int key, int scancode, int action, int mods) {
     // RELEASE is 0, and both PRESS and REPEAT are > 0. So we can pass the
     // action code directly as a bool, and it will toggle the state correctly.
-    set_input_by_glfw_code(key, action, mods);
+    if (action != GLFW_REPEAT) {
+        set_input_by_glfw_code(key, action, mods);
+    }
 }
 
 void scroll_update(GLFWwindow* window, double x, double y) {
