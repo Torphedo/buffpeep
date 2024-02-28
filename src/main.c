@@ -66,7 +66,7 @@ int main() {
       glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
     }
 
-    
+
     // Setup VAO to store our state
     gl_obj vertex_array = 0;
     glGenVertexArrays(1, &vertex_array);
@@ -118,8 +118,10 @@ int main() {
     glDeleteShader(vertex_shader);
     glDeleteShader(fragment_shader);
 
-
     glEnable(GL_DEPTH_TEST);
+    // Enable transparency
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_BLEND);
 
     // Load texture
     u32 gl_img = 0;
@@ -130,8 +132,8 @@ int main() {
     // Wrapping & filtering settings
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
     LOG_MSG(info, "Binding loaded image data.\n");
     glCompressedTexImage2D(GL_TEXTURE_2D, 0, GL_COMPRESSED_RGBA_S3TC_DXT1_EXT, img.width, img.height, 0, (img.width * img.height) / 2, img.data);
@@ -149,10 +151,10 @@ int main() {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // Quad transforms (updated each frame)
-        mat4 model = {0};
-        glm_mat4_identity(model); // Create identity matrix
-        glm_rotate(model, glm_rad(180.0f), (vec3){1.0f, 0.0f, 0.0f});
-        glm_translate(model, (vec3){-0.5f, -0.5f, 0.0f});
+        mat4s model = glms_mat4_identity(); // Create identity matrix
+        model = glms_rotate(model, glm_rad(180.0f), (vec3s){1.0f, 0.0f, 0.0f});
+        model = glms_scale(model, (vec3s){2.5f, 1.0f, 1.0f});
+        model = glms_translate(model, (vec3s){0.2f, 0.0f, 0.0f});
         // glm_rotate(model, glfwGetTime(), (vec3){0.0f, 0.0f, 1.0f});
         gl_obj u_model = glGetUniformLocation(shader_program, "model");
         glUniformMatrix4fv(u_model, 1, GL_FALSE, (const float*)&model);
@@ -165,7 +167,7 @@ int main() {
 
         // Quad transforms (updated each frame)
         // glm_rotate(model, glm_rad(29.0f), (vec3){0.7f, 1.0f, 0.2f});
-        glm_translate(model, (vec3){1.0f, 0.0f, 0.0f});
+        model = glms_translate(model, (vec3s){1.0f, 0.0f, 0.0f});
         glUniformMatrix4fv(u_model, 1, GL_FALSE, (const float*)&model);
         glDrawArrays(GL_TRIANGLES, 0, sizeof(quad_vertices) / sizeof(*quad_vertices));
 

@@ -10,7 +10,7 @@ typedef int16_t s16;
 typedef uint8_t u8;
 typedef int8_t s8;
 
-typedef u32 gl_obj;
+typedef s32 gl_obj;
 
 typedef struct {
     float x;
