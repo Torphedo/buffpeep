@@ -8,6 +8,7 @@
 #include <GLFW/glfw3.h>
 
 #include "gl_setup.h"
+#include "viewer.h"
 #include "types.h"
 #include "shader.h"
 #include "image.h"
@@ -136,73 +137,12 @@ int main() {
     glCompressedTexImage2D(GL_TEXTURE_2D, 0, GL_COMPRESSED_RGBA_S3TC_DXT1_EXT, img.width, img.height, 0, (img.width * img.height) / 2, img.data);
     glGenerateMipmap(GL_TEXTURE_2D);
 
-    bool compressed = true;
-    u8 img_fmt = DXT5;
-
-    // For raw formats
-    u8 unit_size = 0; // 0 = u8, 1 = u16, 2 = u32
-    u8 channels = 4;
-    bool up_last_frame = false;
-    bool down_last_frame = false;
-    bool spc_last_frame = false;
-    printf("\n"); // Go up a line
+    printf("\n");
 
     // Keep window alive and updated
-    while (!glfwWindowShouldClose(window)) {
-        bool up = input.k || input.up;
-        bool down = input.j || input.down;
-        bool changed = up || down || input.space || input.left || input.right;
-        compressed ^= input.space && !spc_last_frame;
-        spc_last_frame = input.space;
-        if (changed) {
-            printf("\033[1F\033[2K"); // Go up a line
-
-            u32 res = (img.height * img.width);
-            if (compressed) {
-                img_fmt += up && !up_last_frame;
-                img_fmt -= down && !down_last_frame;
-                img_fmt %= 3;
-
-                GLenum format = 0;
-                u32 size = res;
-                switch (img_fmt) {
-                    case DXT3:
-                        LOG_MSG(info, "DXT3");
-                        format = GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
-                        break;
-                    case DXT5:
-                        LOG_MSG(info, "DXT5");
-                        format = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
-                        break;
-                    default:
-                        LOG_MSG(info, "DXT1");
-                        format = GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
-                        size /= 2;
-                        break;
-                };
-                glCompressedTexImage2D(GL_TEXTURE_2D, 0, format, img.width, img.height, 0, size, img.data);
-            }
-            else {
-                unit_size += up && !up_last_frame;
-                unit_size -= down && !down_last_frame;
-                unit_size %= 3;
-
-                channels += input.right;
-                channels -= input.left;
-                channels %= 5;
-                LOG_MSG(info, "unit size = %d bytes, %d channels", 1 << unit_size, channels);
-                if (changed) {
-                    GLenum gl_size = GL_UNSIGNED_BYTE + (unit_size * 2);
-                    GLenum format = GL_RGBA;
-                    glTexImage2D(GL_TEXTURE_2D, 0, format, img.width, img.height, 0, format, gl_size, img.data);
-                }
-            }
-
-            glGenerateMipmap(GL_TEXTURE_2D);
-            printf("\n");
-        }
-        down_last_frame = down;
-        up_last_frame = up;
+    while (!glfwWindowShouldClose(window) && !input.q) {
+        // Manages active texture's format, dimensions, etc.
+        viewer_update(img);
 
         // Clear framebuffer
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);

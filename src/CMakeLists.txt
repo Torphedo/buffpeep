@@ -6,5 +6,6 @@ add_executable(gl_box
   "gl_setup.c"
   "input.c"
   "logging.c"
+  "viewer.c"
 )
 target_link_libraries(gl_box PRIVATE glfw glad)
