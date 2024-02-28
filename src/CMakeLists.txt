@@ -3,7 +3,6 @@ add_executable(gl_box
   "shader.c"
   "file.c"
   "image.c"
-  "gl_debug.c"
   "gl_setup.c"
   "input.c"
   "logging.c"

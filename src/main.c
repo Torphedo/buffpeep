@@ -1,14 +1,12 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
-#include <sys/stat.h>
 
 #include <cglm/struct.h>
 #include <glad/glad.h>
 #include <GL/glext.h>
 #include <GLFW/glfw3.h>
 
-#include "gl_debug.h"
 #include "gl_setup.h"
 #include "types.h"
 #include "shader.h"

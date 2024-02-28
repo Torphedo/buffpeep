@@ -14,3 +14,4 @@ typedef enum {
 // (if provided as an extension by the driver).
 GLFWwindow* setup_opengl(s32 width, s32 height, const char* window_name, bool enable_debug);
 
+void gl_debug_setup();
