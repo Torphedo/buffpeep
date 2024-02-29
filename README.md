@@ -2,6 +2,11 @@
 
 # buffpeep
 This is a simple image viewer intended for raw image buffers. This means it targets image data with no formatting header, where the image format/size is unknown.
+It's mainly intended for use with the `resource_x.bin` image files dumped from my [alr](https://github.com/Torphedo/Esper-RE/releases) tool. (But you can use it
+on any raw or block-compressed image data with no header.
+
+`buffpeep` lets me try out lots of resolution and format settings, without needing to manually hex edit DDS files. The main benefit is not having to manually
+recalculate pitch/linear size or fix DDS header flags when switching formats.
 
 # Planned Changes
 - The panning and zooming controls are still a bit awkward, so I want to fix these
