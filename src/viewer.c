@@ -2,7 +2,6 @@
 #include <stdio.h>
 
 #include <glad/glad.h>
-#include <GL/glext.h>
 #include <cglm/struct.h>
 
 #include "image.h"

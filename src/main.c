@@ -4,7 +4,6 @@
 
 #include <cglm/struct.h>
 #include <glad/glad.h>
-#include <GL/glext.h>
 #include <GLFW/glfw3.h>
 
 #include "gl_setup.h"

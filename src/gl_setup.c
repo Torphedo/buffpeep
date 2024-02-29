@@ -1,7 +1,6 @@
 #include <stdbool.h>
 
 #include <glad/glad.h>
-#include <GL/glext.h>
 #include <GLFW/glfw3.h>
 
 #include "logging.h"

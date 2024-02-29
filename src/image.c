@@ -3,7 +3,6 @@
 #include <malloc.h>
 
 #include <glad/glad.h>
-#include <GL/glext.h>
 
 #include "types.h"
 #include "image.h"
