@@ -21,15 +21,16 @@ bool down_last_frame = false;
 bool left_last_frame = false;
 bool right_last_frame = false;
 bool spc_last_frame = false;
+bool c_last_frame = false;
 
 void viewer_update(texture* img) {
     bool up = input.k || input.up;
     bool down = input.j || input.down;
     bool left = input.h || input.left;
     bool right = input.l || input.right;
-    compressed ^= input.space && !spc_last_frame; // Toggle if space is pressed
-    bool changed = up ^ up_last_frame | down ^ down_last_frame | left ^ left_last_frame | right ^ right_last_frame | input.space ^ spc_last_frame;
-    spc_last_frame = input.space;
+    compressed ^= input.c && !c_last_frame; // Toggle if pressed
+    bool changed = up ^ up_last_frame | down ^ down_last_frame | left ^ left_last_frame | right ^ right_last_frame | input.space ^ spc_last_frame | input.c;
+    c_last_frame = input.c;
 
 
     if (!changed) {
@@ -37,27 +38,24 @@ void viewer_update(texture* img) {
         up_last_frame = up;
         left_last_frame = left;
         right_last_frame = right;
+        spc_last_frame = input.space;
         return;
     }
 
     // Increments of 1, or by 4 if compressed (compressed resolution must be a multiple of 4)
-    s32 delta_horizontal = ((right * !right_last_frame) - (left * !left_last_frame));
-    delta_horizontal *= (1 << compressed * 2); // 4 if compressed, 1 if not
-    delta_horizontal *= (1 << input.alt * 4); // 16 if held, 1 if not
-    // delta_horizontal *= input.control * 128;
-    if (input.shift) {
-        img->height += delta_horizontal;
-    }
-    else {
-        img->width += delta_horizontal;
-    }
+    s32 delta_h= ((right * !right_last_frame) - (left * !left_last_frame));
+    s32 delta_v = ((up * !up_last_frame) - (down * !down_last_frame));
+    u32 multiplier = (1 << compressed * 2); // 4 if compressed, 1 if not
+    multiplier *= (1 << input.alt * 4); // 16 if held, 1 if not
+
+    img->height += delta_v * multiplier;
+    img->width += delta_h * multiplier;
 
     printf("\033[1F\033[2K"); // Go up a line & clear
 
     GLint res = (img->height * img->width);
     if (compressed) {
-        img_fmt += up * !up_last_frame;
-        img_fmt -= down * !down_last_frame;
+        img_fmt += input.space * !spc_last_frame;
         img_fmt %= 3;
 
         GLenum format = 0;
@@ -81,13 +79,11 @@ void viewer_update(texture* img) {
     }
     else {
         if (input.shift) {
-            unit_size += up * !up_last_frame;
-            unit_size -= down * !down_last_frame;
+            unit_size += input.space * !spc_last_frame;
             unit_size %= 2;
         }
         else {
-            channels += up * !up_last_frame;
-            channels -= down * !down_last_frame;
+            channels += input.space * !spc_last_frame;
             channels %= 4;
         }
 
@@ -119,6 +115,7 @@ void viewer_update(texture* img) {
     up_last_frame = up;
     left_last_frame = left;
     right_last_frame = right;
+    spc_last_frame = input.space;
 }
 
 vec2s mouse_delta() {
