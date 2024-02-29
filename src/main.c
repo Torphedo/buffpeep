@@ -60,7 +60,7 @@ int main(int argc, char** argv) {
 
     static const s32 width = 800;
     static const s32 height = 600;
-    GLFWwindow* window = setup_opengl(width, height, "gl_box", ENABLE_DEBUG);
+    GLFWwindow* window = setup_opengl(width, height, "buffpeep", ENABLE_DEBUG);
     if (window == NULL) {
         LOG_MSG(error, "Failed to create a valid window & OpenGL context for rendering\n");
         return 1;
@@ -92,13 +92,8 @@ int main(int argc, char** argv) {
     glEnableVertexAttribArray(1);
     
     // Load and compile shaders
-    char vert_path[256] = SRC_ROOT;
-    strncat(vert_path, "/src/gl/vertex.glsl", sizeof(vert_path) -1);
-    gl_obj vertex_shader = shader_compile(vert_path, GL_VERTEX_SHADER);
-    
-    char frag_path[256] = SRC_ROOT;
-    strncat(frag_path, "/src/gl/fragment.glsl", sizeof(frag_path) - 1);
-    gl_obj fragment_shader = shader_compile(frag_path, GL_FRAGMENT_SHADER);
+    gl_obj vertex_shader = shader_compile("vertex.glsl", GL_VERTEX_SHADER);
+    gl_obj fragment_shader = shader_compile("fragment.glsl", GL_FRAGMENT_SHADER);
     
     if (vertex_shader == 0 || fragment_shader == 0) {
         // All needed error information should already be given by the shader
