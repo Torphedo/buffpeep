@@ -6,6 +6,7 @@ out/
 zig-*/
 CMakeFiles/
 cmake_*/
+cmake-*/
 cmake_install.cmake
 Makefile
 *.a
