@@ -41,9 +41,14 @@ vertex quad_vertices[] = {
 };
 
 int main() {
+int main(int argc, char** argv) {
     // Remove the console window on startup on Windows
     // FreeConsole();
-    u8* img_buf = image_buf_load("data/resource_0.bin");
+    if (argc != 2) {
+        LOG_MSG(error, "Please provide a resource filename.\n")
+        return 1;
+    }
+    u8* img_buf = image_buf_load(argv[1]);
     texture img = {
         .data = img_buf,
         .width = 512,
