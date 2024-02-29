@@ -1,4 +1,4 @@
-add_executable(gl_box
+add_executable(buffpeep
   "main.c"
   "shader.c"
   "file.c"
@@ -8,4 +8,4 @@ add_executable(gl_box
   "logging.c"
   "viewer.c"
 )
-target_link_libraries(gl_box PRIVATE glfw glad)
+target_link_libraries(buffpeep PRIVATE glfw glad)
