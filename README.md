@@ -31,3 +31,6 @@ Toggle compressed/raw mode.
 
 ## Q
 Exit.
+
+# Why a buff Peep?
+It lets you peep on unknown image buffers. I was going to name it `bufview`, but my roommate suggested `Peeping Tom`, so I combined them.
