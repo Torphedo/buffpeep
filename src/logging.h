@@ -27,3 +27,8 @@ int logging_print(const char* type, const char* function, const char* format_str
 /// \param ... A format string and extra arguments, just like printf().
 #define LOG_MSG(type, ...) logging_print(type, __func__, __VA_ARGS__);
 
+#ifdef _WIN32
+// Enables ANSI escape codes on Windows
+unsigned short enable_win_ansi();
+#endif
+

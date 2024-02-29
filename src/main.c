@@ -40,8 +40,11 @@ vertex quad_vertices[] = {
 };
 
 int main(int argc, char** argv) {
-    // Remove the console window on startup on Windows
-    // FreeConsole();
+    // Print in color on Windows
+    #ifdef _WIN32
+    enable_win_ansi();
+    #endif
+
     if (argc != 2) {
         LOG_MSG(error, "Please provide a resource filename.\n")
         return 1;
