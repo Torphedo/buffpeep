@@ -1,6 +1,6 @@
-#include "input.h"
-
 #include <GLFW/glfw3.h>
+
+#include "input.h"
 
 input_internal input = {0};
 
@@ -319,3 +319,20 @@ void cursor_update(GLFWwindow* window, double x, double y) {
     input.cursor.y = y;
 }
 
+void mouse_update(GLFWwindow* window, int button, int action, int mods) {
+    if (button == GLFW_MOUSE_BUTTON_LEFT) {
+        input.mouse_l = action;
+        if (action == GLFW_PRESS) {
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        }
+        else {
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+        }
+    }
+    if (button == GLFW_MOUSE_BUTTON_MIDDLE) {
+        input.mouse_m = action;
+    }
+    if (button == GLFW_MOUSE_BUTTON_RIGHT) {
+        input.mouse_r = action;
+    }
+}
