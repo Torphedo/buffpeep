@@ -40,7 +40,6 @@ vertex quad_vertices[] = {
     }
 };
 
-int main() {
 int main(int argc, char** argv) {
     // Remove the console window on startup on Windows
     // FreeConsole();
@@ -182,14 +181,7 @@ int main(int argc, char** argv) {
 
         // Draw
         glUseProgram(shader_program);
-        glBindTexture(GL_TEXTURE_2D, gl_img);
         glBindVertexArray(vertex_array);
-        glDrawArrays(GL_TRIANGLES, 0, sizeof(quad_vertices) / sizeof(*quad_vertices));
-
-        // Quad transforms (updated each frame)
-        // glm_rotate(model, glm_rad(29.0f), (vec3){0.7f, 1.0f, 0.2f});
-        model = glms_translate(model, (vec3s){1.0f, 0.0f, 0.0f});
-        glUniformMatrix4fv(u_model, 1, GL_FALSE, (const float*)&model);
         glDrawArrays(GL_TRIANGLES, 0, sizeof(quad_vertices) / sizeof(*quad_vertices));
 
         glfwSwapBuffers(window);
