@@ -3,6 +3,7 @@
 
 #include <glad/glad.h>
 #include <GL/glext.h>
+#include <cglm/struct.h>
 
 #include "image.h"
 #include "input.h"
@@ -119,4 +120,46 @@ void viewer_update(texture* img) {
     left_last_frame = left;
     right_last_frame = right;
 }
+
+vec2s mouse_delta() {
+    static vec2s prev_mouse = {0};
+    if (!input.mouse_l) {
+        prev_mouse.x = 0;
+        prev_mouse.y = 0;
+        return (vec2s){0};
+    }
+    if (input.mouse_l && prev_mouse.x == 0 && prev_mouse.y == 0) {
+        prev_mouse.x = input.cursor.x;
+        prev_mouse.y = input.cursor.y;
+    }
+
+    vec2s output = {
+            .x = (input.cursor.x - prev_mouse.x),
+            .y = -(input.cursor.y - prev_mouse.y)
+    };
+    prev_mouse.x = input.cursor.x;
+    prev_mouse.y = input.cursor.y;
+
+    return output;
+}
+
+float scroll_delta() {
+    static float prev_scroll = 0.0f;
+    float output = input.scroll.y - prev_scroll;
+
+    prev_scroll = input.scroll.y;
+
+    return output;
+}
+
+mat4s viewer_update_camera(mat4s view) {
+    float zoom = 1.0f;
+    zoom -= scroll_delta() * 0.05f;
+
+    vec2s pos = glms_vec2_scale(mouse_delta(), 0.001f);
+    vec3s offset = (vec3s){pos.x, pos.y, 0.0f};
+    view = glms_translate(view, glms_vec3_divs(offset, zoom));
+
+    view = glms_scale(view, (vec3s){1.0f / fabsf(zoom), 1.0f / fabsf(zoom), 1.0f});
+    return view;
 }

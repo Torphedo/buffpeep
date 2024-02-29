@@ -48,6 +48,7 @@ GLFWwindow* setup_opengl(s32 width, s32 height, const char* window_name, bool en
     glfwSetCursorPosCallback(window, cursor_update);
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetScrollCallback(window, scroll_update);
+    glfwSetMouseButtonCallback(window, mouse_update);
 
     // Get non-accelerated input if possible
     LOG_MSG(info, "Raw mouse motion ");

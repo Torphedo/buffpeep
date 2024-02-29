@@ -61,10 +61,10 @@ int main() {
     }
 
     glfwSetKeyCallback(window, input_update);
+    // glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-    // glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     if (glfwRawMouseMotionSupported()) {
-      // glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
+      glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
     }
 
 
@@ -141,24 +141,39 @@ int main() {
     glGenerateMipmap(GL_TEXTURE_2D);
 
     printf("\n");
+    mat4s view = glms_mat4_identity(); // Create identity matrix
 
     // Keep window alive and updated
     while (!glfwWindowShouldClose(window) && !input.q) {
         // Manages active texture's format, dimensions, etc.
-        viewer_update(img);
+        viewer_update(&img);
 
         // Clear framebuffer
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        int cur_width = 0;
+        int cur_height = 0;
+        glfwGetWindowSize(window, &cur_width, &cur_height);
+
         // Quad transforms (updated each frame)
+
+        float ratio = (float)img.width / (float)img.height;
+        gl_obj u_ratio = glGetUniformLocation(shader_program, "ratio");
+        glUniform1f(u_ratio, ratio);
+
         mat4s model = glms_mat4_identity(); // Create identity matrix
         model = glms_rotate(model, glm_rad(180.0f), (vec3s){1.0f, 0.0f, 0.0f});
-        model = glms_scale(model, (vec3s){2.5f, 1.0f, 1.0f});
-        model = glms_translate(model, (vec3s){0.2f, 0.0f, 0.0f});
+        model = glms_scale(model, (vec3s){(float)cur_height / (float)(cur_width), 1.0f, 1.0f}); // half screen
+        // model = glms_scale(model, (vec3s){0.5f, 1.0f, 1.0f}); // correct size
+        // model = glms_scale(model, (vec3s){0.5625f * 0.5f, 1.0f, 1.0f}); // correct size
         // glm_rotate(model, glfwGetTime(), (vec3){0.0f, 0.0f, 1.0f});
         gl_obj u_model = glGetUniformLocation(shader_program, "model");
-        glUniformMatrix4fv(u_model, 1, GL_FALSE, (const float*)&model);
+        glUniformMatrix4fv(u_model, 1, GL_FALSE, (const float*)&model.raw);
+
+        view = viewer_update_camera(view);
+        gl_obj u_view = glGetUniformLocation(shader_program, "view");
+        glUniformMatrix4fv(u_view, 1, GL_FALSE, (const float*)&view.raw);
 
         // Draw
         glUseProgram(shader_program);
