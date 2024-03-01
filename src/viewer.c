@@ -74,6 +74,7 @@ void viewer_update(texture* img) {
                 size /= 2;
                 break;
         };
+        printf(" %dx%d\n", img->width, img->height);
         glCompressedTexImage2D(GL_TEXTURE_2D, 0, format, img->width, img->height, 0, size, img->data);
     }
     else {
@@ -87,6 +88,7 @@ void viewer_update(texture* img) {
         }
 
         LOG_MSG(info, "%d-bit, %d channels", (1 << unit_size) * 8, channels + 1);
+        printf(" %dx%d\n", img->width, img->height);
         GLenum gl_size = GL_UNSIGNED_BYTE + (unit_size * 2);
         GLint format;
         switch (channels + 1) {
@@ -108,7 +110,6 @@ void viewer_update(texture* img) {
     }
 
     glGenerateMipmap(GL_TEXTURE_2D);
-    printf(" %dx%d\n", img->width, img->height);
 
     down_last_frame = down;
     up_last_frame = up;
