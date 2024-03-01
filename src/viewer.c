@@ -54,6 +54,7 @@ void viewer_update(texture* img) {
 
     GLint res = (img->height * img->width);
     if (compressed) {
+        img_snap(img, 4); // Keep image size at multiple of 4
         img_fmt += input.space * !spc_last_frame;
         img_fmt %= 3;
 

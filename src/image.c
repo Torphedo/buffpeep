@@ -50,6 +50,15 @@ typedef struct dds_header {
     u32 reserved2;    // Unused
 }dds_header;
 
+void img_snap(texture* img, u32 size) {
+    if (img->width % size) {
+        img->width -= (img->width % size);
+    }
+    if (img->height % size) {
+        img->height -= (img->height % size);
+    }
+}
+
 bool has_flag(u32 input, u32 flag) {
     return (input ^ flag) != input;
 }

@@ -22,6 +22,9 @@ typedef struct {
     u8 bits_per_pixel;
 }texture;
 
+// Round image dimensions down to some value
+void img_snap(texture* img, u32 size);
+
 texture image_dds_load(char* filename);
 
 u8* image_buf_load(char* filename);
