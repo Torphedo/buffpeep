@@ -10,7 +10,6 @@ recalculate pitch/linear size or fix DDS header flags when switching formats.
 
 # Planned Changes
 - The panning and zooming controls are still a bit awkward, so I want to fix these
-- Switching to compressed mode when the resolution isn't a multiple of 4 spams GL debug messages in the log
 - I want some way to distinguish the edge of a black texture from the black pixels where there is no data available
 
 # Controls
