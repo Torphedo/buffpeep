@@ -8,12 +8,6 @@ typedef enum {
     DXT5  // BC3
 }img_fmt_compressed;
 
-typedef enum {
-    A8,
-    RGB8,
-    RGBA8
-}img_fmt_raw;
-
 typedef struct {
     u8* data;
     u16 width; // We should never need an image over 32k...
@@ -25,9 +19,4 @@ typedef struct {
 // Round image dimensions down to some value
 void img_snap(texture* img, u32 size);
 
-texture image_dds_load(char* filename);
-
 u8* image_buf_load(char* filename);
-
-void gl_update_active_tex(texture img, bool compressed, u8 fmt);
-

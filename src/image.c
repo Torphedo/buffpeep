@@ -1,13 +1,9 @@
 #include <stdio.h>
 #include <stdbool.h>
-#include <malloc.h>
-
-#include <glad/glad.h>
 
 #include "types.h"
 #include "image.h"
 #include "file.h"
-#include "logging.h"
 
 // 32MiB image data buffer for OpenGL to copy from.
 u8 img_buf[32 * 0x400 * 0x400] = {0};
@@ -63,26 +59,6 @@ bool has_flag(u32 input, u32 flag) {
     return (input ^ flag) != input;
 }
 
-void gl_update_active_tex(texture img, bool compressed, u8 fmt) {
-    u32 res = (img.height * img.width);
-
-    if (compressed) {
-        GLenum format = 0;
-        u32 size = res;
-        switch (fmt) {
-            case DXT3:
-                format = GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
-                break;
-            case DXT5:
-                format = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
-                break;
-            default:
-                format = GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
-                size /= 2;
-                break;
-        };
-        glCompressedTexImage2D(GL_TEXTURE_2D, 0, format, img.width, img.height, 0, size, img.data);
-    }
 }
 
 u8* image_buf_load(char* filename) {
@@ -91,47 +67,3 @@ u8* image_buf_load(char* filename) {
 
     return (u8*)&img_buf;
 }
-
-texture image_dds_load(char* filename) {
-    texture output = {0};
-    static dds_header header = {0};
-    FILE* file = fopen(filename, "rb");
-    if (file == NULL) {
-        LOG_MSG(error, "failed to open %s\n", filename);
-        return output;
-    }
-    LOG_MSG(info, "loading %s...\n", filename);
-    
-    fread(&header, sizeof(header), 1, file);
-    
-    u32 flags = header.pixel_format.flags;
-    if (has_flag(flags, DDPF_RGB) || has_flag(flags, DDPF_LUMINANCE) || has_flag(flags, DDPF_YUV) || has_flag(flags, DDPF_ALPHA)) {
-        output.bits_per_pixel = header.pixel_format.bits_per_pixel;
-    }
-    else if (has_flag(flags, DDPF_ALPHAPIXELS)) {
-        output.bits_per_pixel = 32;
-    }
-    else if (has_flag(flags, DDPF_FOURCC)) {
-        // Ignore char code of "DX10" indicating more advanced formats like BC7, for now
-        output.bits_per_pixel = 16;
-    }
-    
-    u32 texture_size = header.width * header.height * (output.bits_per_pixel / 8);
-    output.data = calloc(1, texture_size);
-    if (output.data == NULL) {
-        fclose(file);
-        return output;
-    }
-    
-    fread(output.data, texture_size, 1, file);
-    fclose(file);
-    
-    output.height = header.height;
-    output.width = header.width;
-    output.mip_level = header.mipmap_count;
-    
-    LOG_MSG(info, "%d bits per pixel\n", output.bits_per_pixel);
-    LOG_MSG(info, "%dx%d\n", output.width, output.height);
-    return output;
-}
-
