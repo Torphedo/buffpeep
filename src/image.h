@@ -13,7 +13,13 @@ typedef struct {
     u16 width; // We should never need an image over 32k...
     u16 height;
     u16 mip_level; // And DEFINITELY not 32k mips...
-    u8 bits_per_pixel;
+
+    bool compressed;
+    u8 fmt; // Compressed format
+
+    // Only relevant if not compressed
+    u8 unit_size; // 0 = u8, 1 = u16, 2 = u32
+    u8 channels;
 }texture;
 
 // Round image dimensions down to some value

@@ -53,9 +53,12 @@ int main(int argc, char** argv) {
     texture img = {
         .data = img_buf,
         .width = 512,
-        .height = 64,
+        .height = 512,
         .mip_level = 1,
-        .bits_per_pixel = 4
+        .fmt = DXT1,
+        .compressed = true,
+        .channels = 4,
+        .unit_size = 0
     };
 
     static const s32 width = 800;
