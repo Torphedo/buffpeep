@@ -10,7 +10,8 @@ recalculate pitch/linear size or fix DDS header flags when switching formats.
 
 # Planned Changes
 - The panning and zooming controls are still a bit awkward, so I want to fix these
-- I want some way to distinguish the edge of a black texture from the black pixels where there is no data available
+- Add a way to shuffle channels around, in case a format orders them differently
+- Add a way to view single-channel data as greyscale?
 
 # Controls
 ## Mouse

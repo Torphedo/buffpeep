@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdbool.h>
+#include <memory.h>
 
 #include "types.h"
 #include "image.h"
@@ -195,7 +196,8 @@ void img_write(texture img) {
 }
 
 u8* image_buf_load(char* filename) {
-    // TODO: If we allow loading a new texture at runtime, memset buffer to 0.
+    // 0xCC bytes separate pixels with missing data from black pixels
+    memset(img_buf, 0xCC, sizeof(img_buf));
     file_load_existing(filename, (u8*)&img_buf, sizeof(img_buf));
 
     return (u8*)&img_buf;
