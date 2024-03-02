@@ -15,6 +15,7 @@ bool left_last_frame = false;
 bool right_last_frame = false;
 bool spc_last_frame = false;
 bool c_last_frame = false;
+bool w_last_frame = false;
 
 void viewer_update(texture* img) {
     bool up = input.k || input.up;
@@ -22,9 +23,8 @@ void viewer_update(texture* img) {
     bool left = input.h || input.left;
     bool right = input.l || input.right;
     img->compressed ^= input.c && !c_last_frame; // Toggle if pressed
-    bool changed = up ^ up_last_frame | down ^ down_last_frame | left ^ left_last_frame | right ^ right_last_frame | input.space ^ spc_last_frame | input.c;
+    bool changed = up ^ up_last_frame | down ^ down_last_frame | left ^ left_last_frame | right ^ right_last_frame | input.space ^ spc_last_frame | input.c ^ c_last_frame | input.w ^ w_last_frame;
     c_last_frame = input.c;
-
 
     if (!changed) {
         down_last_frame = down;
@@ -78,15 +78,16 @@ void viewer_update(texture* img) {
             img->unit_size %= 2;
         }
         else {
+            img->channels--;
             img->channels += input.space * !spc_last_frame;
-            img->channels %= 4;
+            img->channels = (img->channels % 4) + 1;
         }
 
-        LOG_MSG(info, "%d-bit, %d channels", (1 << img->unit_size) * 8, img->channels + 1);
+        LOG_MSG(info, "%d-bit, %d channels", (1 << img->unit_size) * 8, img->channels);
         printf(" %dx%d\n", img->width, img->height);
         GLenum gl_size = GL_UNSIGNED_BYTE + (img->unit_size * 2);
         GLint format;
-        switch (img->channels + 1) {
+        switch (img->channels) {
             case 1:
                 format = GL_RED;
                 break;
@@ -106,11 +107,16 @@ void viewer_update(texture* img) {
 
     glGenerateMipmap(GL_TEXTURE_2D);
 
+    if (input.w && !w_last_frame) {
+        img_write(*img);
+    }
+
     down_last_frame = down;
     up_last_frame = up;
     left_last_frame = left;
     right_last_frame = right;
     spc_last_frame = input.space;
+    w_last_frame = input.w;
 }
 
 vec2s mouse_delta() {
