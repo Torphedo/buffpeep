@@ -167,9 +167,9 @@ void img_write(texture img) {
 
         if (img.unit_size == 1) {
             // 16-bit
-            header.pixel_format.red_bitmask = (0xFFFF) << (bytes_per_channel * 8);
+            header.pixel_format.red_bitmask = 0xFFFF;
             if (img.channels > 1) {
-                header.pixel_format.blue_bitmask = (0xFFFF);
+                header.pixel_format.green_bitmask = 0xFFFF << 16;
             }
         }
         else {
