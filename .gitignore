@@ -19,3 +19,6 @@ Makefile
 .cache/
 compile_commands.json
 
+# Auto-generated GLSL C headers
+src/gl/*.h
+

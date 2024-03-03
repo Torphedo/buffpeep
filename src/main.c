@@ -39,6 +39,14 @@ vertex quad_vertices[] = {
     }
 };
 
+static const char frag[] = {
+#include "gl/fragment.h"
+};
+
+static const char vert[] = {
+#include "gl/vertex.h"
+};
+
 int main(int argc, char** argv) {
     // Print in color on Windows
     #ifdef _WIN32
@@ -95,8 +103,8 @@ int main(int argc, char** argv) {
     glEnableVertexAttribArray(1);
     
     // Load and compile shaders
-    gl_obj vertex_shader = shader_compile("vertex.glsl", GL_VERTEX_SHADER);
-    gl_obj fragment_shader = shader_compile("fragment.glsl", GL_FRAGMENT_SHADER);
+    gl_obj vertex_shader = shader_compile_src(vert, GL_VERTEX_SHADER);
+    gl_obj fragment_shader = shader_compile_src(frag, GL_FRAGMENT_SHADER);
     
     if (vertex_shader == 0 || fragment_shader == 0) {
         // All needed error information should already be given by the shader

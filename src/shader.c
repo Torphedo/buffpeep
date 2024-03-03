@@ -45,24 +45,29 @@ bool shader_link_check(gl_obj shader) {
     return false;
 }
 
-gl_obj shader_compile(const char* path, GLenum shader_type) {
-    u8* shader_source = file_load(path);
-    if (shader_source == NULL) {
-        LOG_MSG(error, "failed to open GLSL source file %s\n", path);
-        return 0;
-    }
+gl_obj shader_compile_src(const char* src, GLenum shader_type) {
     gl_obj shader = glCreateShader(shader_type);
-    glShaderSource(shader, 1, (const GLchar* const *) &shader_source, NULL);
+    glShaderSource(shader, 1, (const GLchar* const *) &src, NULL);
     glCompileShader(shader);
-    
+
     // Check for shader compile errors
     s32 success = 0;
     glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
     if (!success) {
         char log[512] = {0};
         glGetShaderInfoLog(shader, sizeof(log), NULL, log);
-        LOG_MSG(error, "failed to compile shader %s.\n%s\n", path, log);
+        LOG_MSG(error, "failed to compile shader.\n%s\n", log);
     }
+    return shader;
+}
+
+gl_obj shader_compile(const char* path, GLenum shader_type) {
+    u8* shader_source = file_load(path);
+    if (shader_source == NULL) {
+        LOG_MSG(error, "failed to open GLSL source file %s\n", path);
+        return 0;
+    }
+    gl_obj shader = shader_compile_src((char*)shader_source, shader_type);
     free(shader_source);
     return shader;
 }
