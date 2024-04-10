@@ -5,6 +5,7 @@
 #include "types.h"
 #include "image.h"
 #include "file.h"
+#include "logging.h"
 
 // 32MiB image data buffer for OpenGL to copy from.
 u8 img_buf[32 * 0x400 * 0x400] = {0};
@@ -193,6 +194,10 @@ void img_write(texture img) {
     fwrite(&header, sizeof(header), 1, out);
     fwrite(img.data, tex_size, 1, out);
     fclose(out);
+
+    // Go up a line & clear. Combined with double newline, we print above the
+    // persistent status message.
+    LOG_OVERSTATUS(info, "Written to img.dds\n");
 }
 
 bool is_dds(char* filename) {
