@@ -57,17 +57,7 @@ int main(int argc, char** argv) {
         LOG_MSG(error, "Please provide a resource filename.\n")
         return 1;
     }
-    u8* img_buf = image_buf_load(argv[1]);
-    texture img = {
-        .data = img_buf,
-        .width = 512,
-        .height = 512,
-        .mip_level = 1,
-        .fmt = DXT1,
-        .compressed = true,
-        .channels = 4,
-        .unit_size = 0
-    };
+    texture img = image_buf_load(argv[1]);
 
     static const s32 width = 800;
     static const s32 height = 600;

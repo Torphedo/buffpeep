@@ -195,10 +195,79 @@ void img_write(texture img) {
     fclose(out);
 }
 
-u8* image_buf_load(char* filename) {
+bool is_dds(char* filename) {
+    if (!file_exists(filename)) {
+        return false;
+    }
+    FILE* f = fopen(filename, "rb");
+    if (f == NULL) {
+        return false;
+    }
+    u32 magic = 0;
+    fread(&magic, sizeof(magic), 1, f);
+    fclose(f);
+
+    return (magic == DDS_BEGIN);
+}
+
+texture image_buf_load(char* filename) {
+    texture img = {
+        .data = img_buf,
+        .width = 512,
+        .height = 512,
+        .mip_level = 1,
+        .fmt = DXT1,
+        .compressed = true,
+        .channels = 4,
+        .unit_size = 0
+    };
+    if (!file_exists(filename)) {
+        return img;
+    }
+
     // 0xCC bytes separate pixels with missing data from black pixels
     memset(img_buf, 0xCC, sizeof(img_buf));
-    file_load_existing(filename, (u8*)&img_buf, sizeof(img_buf));
+    if (!is_dds(filename)) {
+        // Load raw image data
+        file_load_existing(filename, (u8*)&img_buf, sizeof(img_buf));
+        return img;
+    }
 
-    return (u8*)&img_buf;
+    u32 size = file_size(filename);
+    FILE* f = fopen(filename, "rb");
+    if (f == NULL) {
+        return img;
+    }
+    dds_header header = {0};
+    fread(&header, sizeof(header), 1, f);
+
+    // Read in remaining image data from the DDS
+    fread(&img_buf, size - sizeof(header), 1, f);
+    fclose(f);
+
+    // Use data from the DDS as our initial texture state
+    img.width = header.width;
+    img.height = header.height;
+
+    // Only inherit the mip count if the flag in the header is set
+    bool has_mipmapcount = ((header.flags & DDSD_MIPMAPCOUNT) != 0);
+    img.mip_level = header.mipmap_count * has_mipmapcount;
+
+    // Presence of FOURCC flag indicates a compressed texture format
+    img.compressed = ((header.pixel_format.flags & DDPF_FOURCC) != 0);
+    u32 dxt_n = header.pixel_format.format_char_code;
+    switch (dxt_n) {
+        case DDS_DXT5:
+            img.fmt = DXT3;
+            break;
+        case DDS_DXT3:
+            img.fmt = DXT5;
+            break;
+        default:
+            img.fmt = DXT1;
+            break;
+    };
+     
+    // TODO: set channel count for uncompressed textures
+    return img;
 }

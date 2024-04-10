@@ -9,7 +9,7 @@
 #include "logging.h"
 #include "types.h"
 
-bool up_last_frame = false;
+bool up_last_frame = true; // Update texture state on startup
 bool down_last_frame = false;
 bool left_last_frame = false;
 bool right_last_frame = false;

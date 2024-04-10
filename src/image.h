@@ -27,4 +27,4 @@ void img_snap(texture* img, u32 size);
 
 void img_write(texture img);
 
-u8* image_buf_load(char* filename);
+texture image_buf_load(char* filename);
