@@ -25,7 +25,7 @@ int logging_print(const char* type, const char* function, const char* format_str
 /// every time. Usage is identical to printf() but with a message type first.
 /// \param type\n error = red\n warning = yellow\n info = green\n debug = blue
 /// \param ... A format string and extra arguments, just like printf().
-#define LOG_MSG(type, ...) logging_print(type, __func__, __VA_ARGS__);
+#define LOG_MSG(type, ...) logging_print(type, __func__, __VA_ARGS__)
 
 #ifdef _WIN32
 // Enables ANSI escape codes on Windows

@@ -54,7 +54,7 @@ int main(int argc, char** argv) {
     #endif
 
     if (argc != 2) {
-        LOG_MSG(error, "Please provide a resource filename.\n")
+        LOG_MSG(error, "Please provide a resource filename.\n");
         return 1;
     }
     texture img = image_buf_load(argv[1]);
