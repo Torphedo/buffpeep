@@ -27,6 +27,10 @@ int logging_print(const char* type, const char* function, const char* format_str
 /// \param ... A format string and extra arguments, just like printf().
 #define LOG_MSG(type, ...) logging_print(type, __func__, __VA_ARGS__)
 
+// Print over the last line and leave a space, allowing you to print above
+// buffpeep's persistent status message.
+#define LOG_OVERSTATUS(type, ...) printf("\033[1F\033[2K"); logging_print(type, __func__, __VA_ARGS__); printf("\n")
+
 #ifdef _WIN32
 // Enables ANSI escape codes on Windows
 unsigned short enable_win_ansi();
