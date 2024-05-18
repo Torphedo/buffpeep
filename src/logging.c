@@ -2,7 +2,7 @@
 #include <stdarg.h>
 
 #ifdef _WIN32
-#include <Windows.h>
+#include <windows.h>
 
 // Enables ANSI escape codes on Windows
 unsigned short enable_win_ansi() {
