@@ -10,7 +10,7 @@ typedef struct {
 
     // For taking over the rendering pipeline (binding shaders, etc.), then
     // rendering on top and updating internal state (checking for input, etc.)
-    void (*render)(void* ctx);
+    void (*render)(void* ctx, void* window);
 
     // Free all buffers, unload all shaders, etc.
     void (*destroy)(void* ctx);

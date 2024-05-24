@@ -52,11 +52,7 @@ int main(int argc, char** argv) {
         // Clear framebuffer
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        int cur_width = 0;
-        int cur_height = 0;
-        glfwGetWindowSize(window, &cur_width, &cur_height);
-
-        image_renderer.render(img_ctx);
+        image_renderer.render(img_ctx, window);
 
         glfwSwapBuffers(window);
         glfwPollEvents();

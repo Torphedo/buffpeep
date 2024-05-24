@@ -139,7 +139,7 @@ void* image_init(texture* img) {
     return state;
 }
 
-void image_render(void* ctx) {
+void image_render(void* ctx, void* window) {
     img_state* state = (img_state*)ctx;
     // We have to make the shader active for viewer to upload uniforms
     glUseProgram(state->shader_program);
@@ -153,15 +153,19 @@ void image_render(void* ctx) {
     float ratio = (float)state->img->width / (float)state->img->height;
     glUniform1f(state->u_img_aspect, ratio);
 
+    int cur_width = 0;
+    int cur_height = 0;
+    glfwGetWindowSize((GLFWwindow*)window, &cur_width, &cur_height);
+    float screen_ratio = (float)cur_width / (float)cur_height;
+
     // Upload projection matrix
     const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
     mat4 projection = {0};
-    glm_perspective_rh_no(glm_rad(45), (float)mode->width / (float)mode->height, 0.1f, 1000.0f, projection);
+    glm_perspective_rh_no(glm_rad(45), screen_ratio, 0.1f, 1000.0f, projection);
     glUniformMatrix4fv(state->u_proj, 1, GL_FALSE, (const float*)&projection);
 
     mat4s model = glms_mat4_identity();
     model = glms_rotate(model, glm_rad(180.0f), (vec3s){1.0f, 0.0f, 0.0f});
-    // model = glms_scale(model, (vec3s){(float)cur_height / (float)(cur_width), 1.0f, 1.0f}); // half screen
 
     glUniformMatrix4fv(state->u_model, 1, GL_FALSE, (const float*)&model.raw);
 
