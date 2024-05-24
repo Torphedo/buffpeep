@@ -6,6 +6,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#include "camera.h"
 #include "gl_setup.h"
 #include "viewer.h"
 #include "types.h"
@@ -68,10 +69,9 @@ int main(int argc, char** argv) {
     }
 
     glfwSetKeyCallback(window, input_update);
-    // glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
     if (glfwRawMouseMotionSupported()) {
-      glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
+        glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
     }
 
 
@@ -143,8 +143,6 @@ int main(int argc, char** argv) {
     glGenerateMipmap(GL_TEXTURE_2D);
 
     printf("\n");
-    mat4s view = glms_mat4_identity(); // Create identity matrix
-
     // Keep window alive and updated
     while (!glfwWindowShouldClose(window) && !input.q) {
         // Manages active texture's format, dimensions, etc.
@@ -164,18 +162,27 @@ int main(int argc, char** argv) {
         gl_obj u_ratio = glGetUniformLocation(shader_program, "ratio");
         glUniform1f(u_ratio, ratio);
 
+        // Upload projection matrix
+        const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+        mat4 projection = {0};
+        glm_perspective_rh_no(glm_rad(45), (float)mode->width / (float)mode->height, 0.1f, 1000.0f, projection);
+        gl_obj u_proj = glGetUniformLocation(shader_program, "projection");
+        glUniformMatrix4fv(u_proj, 1, GL_FALSE, (const float*)&projection);
+
         mat4s model = glms_mat4_identity(); // Create identity matrix
         model = glms_rotate(model, glm_rad(180.0f), (vec3s){1.0f, 0.0f, 0.0f});
         model = glms_scale(model, (vec3s){(float)cur_height / (float)(cur_width), 1.0f, 1.0f}); // half screen
+
         // model = glms_scale(model, (vec3s){0.5f, 1.0f, 1.0f}); // correct size
         // model = glms_scale(model, (vec3s){0.5625f * 0.5f, 1.0f, 1.0f}); // correct size
-        // glm_rotate(model, glfwGetTime(), (vec3){0.0f, 0.0f, 1.0f});
         gl_obj u_model = glGetUniformLocation(shader_program, "model");
         glUniformMatrix4fv(u_model, 1, GL_FALSE, (const float*)&model.raw);
 
-        view = viewer_update_camera(view);
+        mat4 view = {0};
+        glm_mat4_identity(view);
+        camera_update(&view);
         gl_obj u_view = glGetUniformLocation(shader_program, "view");
-        glUniformMatrix4fv(u_view, 1, GL_FALSE, (const float*)&view.raw);
+        glUniformMatrix4fv(u_view, 1, GL_FALSE, (const float*)view);
 
         // Draw
         glUseProgram(shader_program);

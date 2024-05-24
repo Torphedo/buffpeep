@@ -5,51 +5,38 @@
 #include <cglm/struct.h>
 
 #include "image.h"
+#include "camera.h"
 #include "input.h"
 #include "logging.h"
 #include "types.h"
 
-bool up_last_frame = true; // Update texture state on startup
-bool down_last_frame = false;
-bool left_last_frame = false;
-bool right_last_frame = false;
-bool spc_last_frame = false;
-bool c_last_frame = false;
-bool w_last_frame = false;
+input_internal input_prev = {
+    .space = true, // Update texture state on startup
+};
 
 void viewer_update(texture* img) {
-    bool up = input.k || input.up;
-    bool down = input.j || input.down;
-    bool left = input.h || input.left;
-    bool right = input.l || input.right;
-    img->compressed ^= input.c && !c_last_frame; // Toggle if pressed
-    bool changed = up ^ up_last_frame | down ^ down_last_frame | left ^ left_last_frame | right ^ right_last_frame | input.space ^ spc_last_frame | input.c ^ c_last_frame | input.w ^ w_last_frame;
-    c_last_frame = input.c;
-
-    if (!changed) {
-        down_last_frame = down;
-        up_last_frame = up;
-        left_last_frame = left;
-        right_last_frame = right;
-        spc_last_frame = input.space;
-        return;
-    }
+    bool up = (input.k && !input_prev.k) || (input.up && !input_prev.up);
+    bool down = (input.j && !input_prev.j) || (input.down && input_prev.down);
+    bool left = (input.h && !input_prev.h) || (input.left && !input_prev.left);
+    bool right = (input.l && !input_prev.l) || (input.right && !input_prev.right);
+    bool space = (input.space * !input_prev.space);
+    img->compressed ^= input.c && !input_prev.c; // Toggle if pressed
 
     // Increments of 1, or by 4 if compressed (compressed resolution must be a multiple of 4)
-    s32 delta_h= ((right * !right_last_frame) - (left * !left_last_frame));
-    s32 delta_v = ((up * !up_last_frame) - (down * !down_last_frame));
+    s32 delta_h = right - left;
+    s32 delta_v = up - down;
     u32 multiplier = (1 << img->compressed * 2); // 4 if compressed, 1 if not
     multiplier *= (1 << input.alt * 4); // 16 if held, 1 if not
 
     img->height += delta_v * multiplier;
-    img->width += delta_h * multiplier;
+    img->width  += delta_h * multiplier;
 
     printf("\033[1F\033[2K"); // Go up a line & clear
 
     GLint res = (img->height * img->width);
     if (img->compressed) {
         img_snap(img, 4); // Keep image size at multiple of 4
-        img->fmt += input.space * !spc_last_frame;
+        img->fmt += space;
         img->fmt %= 3;
 
         GLenum format = 0;
@@ -74,12 +61,12 @@ void viewer_update(texture* img) {
     }
     else {
         if (input.shift) {
-            img->unit_size += input.space * !spc_last_frame;
+            img->unit_size += space;
             img->unit_size %= 2;
         }
         else {
             img->channels--;
-            img->channels += input.space * !spc_last_frame;
+            img->channels += space;
             img->channels = (img->channels % 4) + 1;
         }
 
@@ -107,16 +94,11 @@ void viewer_update(texture* img) {
 
     glGenerateMipmap(GL_TEXTURE_2D);
 
-    if (input.w && !w_last_frame) {
+    if (input.w && !input_prev.w) {
         img_write(*img);
     }
 
-    down_last_frame = down;
-    up_last_frame = up;
-    left_last_frame = left;
-    right_last_frame = right;
-    spc_last_frame = input.space;
-    w_last_frame = input.w;
+    input_prev = input;
 }
 
 vec2s mouse_delta() {
@@ -150,14 +132,3 @@ float scroll_delta() {
     return output;
 }
 
-mat4s viewer_update_camera(mat4s view) {
-    float zoom = 1.0f;
-    zoom -= scroll_delta() * 0.05f;
-
-    vec2s pos = glms_vec2_scale(mouse_delta(), 0.001f);
-    vec3s offset = (vec3s){pos.x, pos.y, 0.0f};
-    view = glms_translate(view, glms_vec3_divs(offset, zoom));
-
-    view = glms_scale(view, (vec3s){1.0f / fabsf(zoom), 1.0f / fabsf(zoom), 1.0f});
-    return view;
-}

@@ -1,6 +1,6 @@
-#include "types.h"
 #include <stdbool.h>
 
+#include <cglm/struct.h>
 #include <GLFW/glfw3.h>
 
 // TLDR: We have to keep state ourselves because relying on the callback makes
@@ -146,8 +146,8 @@ typedef struct {
     bool mouse_m: 1;
     bool mouse_r: 1;
 
-    vec2f cursor;
-    vec2f scroll;
+    vec2s cursor;
+    vec2s scroll;
 }input_internal;
 
 // The global input struct our callback will update

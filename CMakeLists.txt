@@ -37,6 +37,7 @@ add_executable(buffpeep
     "src/image.c"
     "src/gl_setup.c"
     "src/input.c"
+    "src/camera.c"
     "src/logging.c"
     "src/viewer.c"
 
