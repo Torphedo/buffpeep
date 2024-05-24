@@ -125,6 +125,7 @@ int main(int argc, char** argv) {
     // Enable transparency
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
+    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 
     // Load texture
     u32 gl_img = 0;
@@ -133,8 +134,8 @@ int main(int argc, char** argv) {
     glBindTexture(GL_TEXTURE_2D, gl_img);
 
     // Wrapping & filtering settings
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);	
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
@@ -142,14 +143,18 @@ int main(int argc, char** argv) {
     glCompressedTexImage2D(GL_TEXTURE_2D, 0, GL_COMPRESSED_RGBA_S3TC_DXT1_EXT, img.width, img.height, 0, (img.width * img.height) / 2, img.data);
     glGenerateMipmap(GL_TEXTURE_2D);
 
+    gl_obj u_ratio = glGetUniformLocation(shader_program, "ratio");
+    gl_obj u_proj = glGetUniformLocation(shader_program, "projection");
+    gl_obj u_model = glGetUniformLocation(shader_program, "model");
+    gl_obj u_view = glGetUniformLocation(shader_program, "view");
+
     printf("\n");
     // Keep window alive and updated
     while (!glfwWindowShouldClose(window) && !input.q) {
         // Manages active texture's format, dimensions, etc.
-        viewer_update(&img);
+        viewer_update(shader_program, &img);
 
         // Clear framebuffer
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         int cur_width = 0;
@@ -159,29 +164,23 @@ int main(int argc, char** argv) {
         // Quad transforms (updated each frame)
 
         float ratio = (float)img.width / (float)img.height;
-        gl_obj u_ratio = glGetUniformLocation(shader_program, "ratio");
         glUniform1f(u_ratio, ratio);
 
         // Upload projection matrix
         const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
         mat4 projection = {0};
         glm_perspective_rh_no(glm_rad(45), (float)mode->width / (float)mode->height, 0.1f, 1000.0f, projection);
-        gl_obj u_proj = glGetUniformLocation(shader_program, "projection");
         glUniformMatrix4fv(u_proj, 1, GL_FALSE, (const float*)&projection);
 
-        mat4s model = glms_mat4_identity(); // Create identity matrix
+        mat4s model = glms_mat4_identity();
         model = glms_rotate(model, glm_rad(180.0f), (vec3s){1.0f, 0.0f, 0.0f});
-        model = glms_scale(model, (vec3s){(float)cur_height / (float)(cur_width), 1.0f, 1.0f}); // half screen
+        // model = glms_scale(model, (vec3s){(float)cur_height / (float)(cur_width), 1.0f, 1.0f}); // half screen
 
-        // model = glms_scale(model, (vec3s){0.5f, 1.0f, 1.0f}); // correct size
-        // model = glms_scale(model, (vec3s){0.5625f * 0.5f, 1.0f, 1.0f}); // correct size
-        gl_obj u_model = glGetUniformLocation(shader_program, "model");
         glUniformMatrix4fv(u_model, 1, GL_FALSE, (const float*)&model.raw);
 
         mat4 view = {0};
         glm_mat4_identity(view);
         camera_update(&view);
-        gl_obj u_view = glGetUniformLocation(shader_program, "view");
         glUniformMatrix4fv(u_view, 1, GL_FALSE, (const float*)view);
 
         // Draw
