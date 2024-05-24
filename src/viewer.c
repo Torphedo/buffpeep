@@ -5,7 +5,6 @@
 #include <cglm/struct.h>
 
 #include "image.h"
-#include "camera.h"
 #include "input.h"
 #include "logging.h"
 #include "types.h"
@@ -25,7 +24,7 @@ void viewer_update(gl_obj shader, texture* img) {
     img->compressed ^= input.c && !input_prev.c; // Toggle if pressed
     use_texcoord_hack ^= (input.t && !input_prev.t);
 
-    // 
+    // Upload texture coordinate ratio if enabled
     gl_obj u_tex_ratio = glGetUniformLocation(shader, "tex_ratio");
     float ratio = (float)img->width / (float)img->height;
     if (!use_texcoord_hack) {
@@ -36,9 +35,12 @@ void viewer_update(gl_obj shader, texture* img) {
     // Increments of 1, or by 4 if compressed (compressed resolution must be a multiple of 4)
     s32 delta_h = right - left;
     s32 delta_v = up - down;
-    u32 multiplier = (1 << img->compressed * 2); // 4 if compressed, 1 if not
-    multiplier *= (1 << input.alt * 4); // 16 if held, 1 if not
+    // Compressed images have to increase in increments of their (square) block
+    // width, but uncompressed ones can increase by 1 pixel at a time.
+    u32 multiplier = img->compressed ? COMPRESSED_BLK_DIM : 1;
+    multiplier *= (input.alt ? 16 : 1); // Adjust 16x faster when alt is held
 
+    // Adjust image dimensions
     img->height += delta_v * multiplier;
     img->width  += delta_h * multiplier;
 
@@ -47,8 +49,7 @@ void viewer_update(gl_obj shader, texture* img) {
     GLint res = (img->height * img->width);
     if (img->compressed) {
         img_snap(img, 4); // Keep image size at multiple of 4
-        img->fmt += space;
-        img->fmt %= 3;
+        img->fmt = (img->fmt + space) % DXT_ENUM_MAX; // Cycle through formats
 
         GLenum format = 0;
         GLint size = res;
@@ -110,36 +111,5 @@ void viewer_update(gl_obj shader, texture* img) {
     }
 
     input_prev = input;
-}
-
-vec2s mouse_delta() {
-    static vec2s prev_mouse = {0};
-    if (!input.mouse_l) {
-        prev_mouse.x = 0;
-        prev_mouse.y = 0;
-        return (vec2s){0};
-    }
-    if (input.mouse_l && prev_mouse.x == 0 && prev_mouse.y == 0) {
-        prev_mouse.x = input.cursor.x;
-        prev_mouse.y = input.cursor.y;
-    }
-
-    vec2s output = {
-            .x = (input.cursor.x - prev_mouse.x),
-            .y = -(input.cursor.y - prev_mouse.y)
-    };
-    prev_mouse.x = input.cursor.x;
-    prev_mouse.y = input.cursor.y;
-
-    return output;
-}
-
-float scroll_delta() {
-    static float prev_scroll = 0.0f;
-    float output = input.scroll.y - prev_scroll;
-
-    prev_scroll = input.scroll.y;
-
-    return output;
 }
 

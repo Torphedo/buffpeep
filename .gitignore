@@ -12,6 +12,7 @@ Makefile
 *.a
 *.lib
 *.exe
+*.pdb
 *.dll
 *.so
 

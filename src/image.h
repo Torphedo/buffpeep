@@ -5,8 +5,14 @@
 typedef enum {
     DXT1, // BC1
     DXT3, // BC2
-    DXT5  // BC3
+    DXT5, // BC3
+    DXT_ENUM_MAX,
 }img_fmt_compressed;
+
+enum {
+    // Width/height (in pixels) of a compressed texture block
+    COMPRESSED_BLK_DIM = 4,
+};
 
 typedef struct {
     u8* data;
