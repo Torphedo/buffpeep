@@ -5,13 +5,10 @@
 vec3s camera_up = {0.0f, 1.0f, 0.0f};
 
 vec3s camera_target = {0};
-vec2s camera_orbit_angles = {0};
-vec3s camera_pos = {0};
+vec3s camera_pos = {.z = 1.0f};
 
-float radius = 4.0f;
-const float orbit_speed = 0.025f;
-const float move_speed = 0.5f;
-const float mouse_sens = 0.015f;
+const float mouse_sens = 0.005f;
+const float scroll_sens = 0.05f;
 
 bool invert_mouse_x = true;
 bool invert_mouse_y = false;
@@ -26,48 +23,6 @@ float clampf(float x, float min, float max) {
     else {
         return x;
     }
-}
-
-// Lengthen/shorten a vector by an arbitrary amount.
-vec2s vec2_addmag(vec2s v, float amount) {
-    float magnitude = glms_vec2_norm(v);
-    // Turn our amount into a scalar we can multiply the vector by
-    float scalar = 1.0f - (amount / magnitude);
-    
-    // Scale the vector.
-    v = glms_vec2_scale(v, scalar);
-    return v;
-}
-
-// Get the camera position relative to an orbit center-point based on the
-// rotation angle
-vec3s orbit_pos_by_angles(vec2s angles, float orbit_radius) {
-    // Get XYZ positions using trig on our angles
-    camera_pos = (vec3s){
-        .x = sinf(camera_orbit_angles.x),
-        .z = cosf(camera_orbit_angles.x),
-        .y = sinf(camera_orbit_angles.y)
-    };
-
-    // To keep the camera at a constant distance we need to move our horizontal
-    // position vector towards (0, 0) by the distance between the radius and the
-    // Z position of our Y angle.
-    float z_diff = (1.0f - cosf(camera_orbit_angles.y));
-
-    // Make sure we're SHORTENING the vector, not adding to it.
-    z_diff = fabsf(z_diff); 
-    
-    // Shorten our horizontal vector by the calculated amount.
-    vec2s horizontal_pos = {camera_pos.x, camera_pos.z};
-    horizontal_pos = vec2_addmag(horizontal_pos, z_diff);
-    
-    camera_pos.x = horizontal_pos.x;
-    camera_pos.z = horizontal_pos.y;
-    
-    // Scale our position to the orbit radius
-    camera_pos = glms_vec3_scale_as(camera_pos, orbit_radius);
-
-    return camera_pos;
 }
 
 vec2s get_cursor_delta(vec2s cursor_pos) {
@@ -100,60 +55,28 @@ vec2s get_cursor_delta(vec2s cursor_pos) {
 void camera_update(mat4* view) {
     static vec2s last_scroll = {0};
 
-    const vec2s cursor_delta = get_cursor_delta(input.cursor);
-
+    vec2s cursor_delta = get_cursor_delta(input.cursor);
+    cursor_delta = glms_vec2_scale(cursor_delta, camera_pos.z);
     const vec2s scroll_delta = {
-        .x = input.scroll.x - last_scroll.x,
-        .y = input.scroll.y - last_scroll.y
+        .x = scroll_sens * (last_scroll.x - input.scroll.x),
+        .y = scroll_sens * (last_scroll.y - input.scroll.y),
     };
-
-    vec3s cam_dir = glms_normalize(camera_facing());
-    float forward  = move_speed * (input.w - input.s);
-    float side     = move_speed * (input.a - input.d);
-
-    // Nullify vertical movement unless enabled
-    float vertical = move_speed * (input.space - input.shift);
-    vec3s pos_delta = glms_vec3_scale(cam_dir, forward); // [Camera dir] * forward movement
-
-    // Add [Camera dir rotated by 90 degrees] * side movement to get net movement
-    vec3s cam_side = glms_vec3_rotate(cam_dir, glm_rad(90), camera_up);
-    cam_side.y = 0;
-    pos_delta = glms_vec3_add(pos_delta, glms_vec3_scale(cam_side, side));
-
-    // Use this for "freecam"-style movement
-    // pos_delta.y = (cam_dir.y * forward);
-
-    pos_delta.y = vertical;
 
     // Save state so we can find the delta next time we're called
     last_scroll = input.scroll;
 
-    // Update angles & zoom from mouse input
-    camera_orbit_angles = glms_vec2_add(camera_orbit_angles, cursor_delta);
-    radius -= scroll_delta.y;
-    radius = clampf(radius, 0.05f, 128.0f); // Don't allow <= 0 or really high zoom
-
     // Update target pos using delta from user input
-    camera_target = glms_vec3_add(camera_target, pos_delta);
+    // TODO: It would be cool if we could make the camera movement motion match
+    // the screen-space mouse movement somehow.
+    camera_target.x += cursor_delta.x;
+    camera_target.y += cursor_delta.y;
+    camera_pos.x += cursor_delta.x;
+    camera_pos.y += cursor_delta.y;
 
-    // Rendering breaks at exactly 90 and we don't want to be upside-down
-    camera_orbit_angles.y = clampf(camera_orbit_angles.y, glm_rad(-89.999f), glm_rad(89.999f));
-    
-    // Add target position to relative orbit position
-    camera_pos = glms_vec3_add(camera_target, orbit_pos_by_angles(camera_orbit_angles, radius));
+    // Adjust depth w/ zoom
+    camera_pos.z += scroll_delta.y;
+    camera_pos.z = clampf(camera_pos.z, 0.1f, 100.0f);
     
     glm_lookat((float*)&camera_pos, (float*)&camera_target, (float*)&camera_up, *view);
-}
-
-vec3s camera_facing() {
-    return glms_vec3_sub(camera_target, camera_pos);
-}
-
-void camera_set_target(vec3s pos) {
-    camera_target = (vec3s){
-        .x = pos.x,
-        .y = pos.y,
-        .z = pos.z,
-    };
 }
 
