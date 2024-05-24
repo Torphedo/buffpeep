@@ -7,19 +7,14 @@ out vec2 tex_coord;
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
-uniform float ratio;
-uniform float tex_ratio;
+uniform float img_aspect;
 
 void main() {
     gl_Position = projection * view * model * vec4(a_pos, 1.0);
-    gl_Position.x *= ratio;
-    gl_Position.y /= ratio;
+
+    // Adjust with the aspect ratio of the current image to prevent stretching
+    gl_Position.x *= img_aspect;
 
     tex_coord = a_tex_coord;
-    // This seems to help with very wide images, but I don't know if it's
-    // mathematically correct or just a convenient coincidence.
-    // I used a separate uniform so it can be disabled @ runtime.
-    tex_coord.x *= tex_ratio;
-    // tex_coord.y *= tex_ratio;
 }
 

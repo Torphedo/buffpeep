@@ -13,24 +13,13 @@ input_internal input_prev = {
     .space = true, // Update texture state on startup
 };
 
-bool use_texcoord_hack = true;
-
-void viewer_update(gl_obj shader, texture* img) {
+void viewer_update(texture* img) {
     bool up = (input.k && !input_prev.k) || (input.up && !input_prev.up);
     bool down = (input.j && !input_prev.j) || (input.down && input_prev.down);
     bool left = (input.h && !input_prev.h) || (input.left && !input_prev.left);
     bool right = (input.l && !input_prev.l) || (input.right && !input_prev.right);
     bool space = (input.space * !input_prev.space);
     img->compressed ^= input.c && !input_prev.c; // Toggle if pressed
-    use_texcoord_hack ^= (input.t && !input_prev.t);
-
-    // Upload texture coordinate ratio if enabled
-    gl_obj u_tex_ratio = glGetUniformLocation(shader, "tex_ratio");
-    float ratio = (float)img->width / (float)img->height;
-    if (!use_texcoord_hack) {
-        ratio = 1.0f;
-    }
-    glUniform1f(u_tex_ratio, ratio);
 
     // Increments of 1, or by 4 if compressed (compressed resolution must be a multiple of 4)
     s32 delta_h = right - left;
@@ -104,6 +93,11 @@ void viewer_update(gl_obj shader, texture* img) {
         glTexImage2D(GL_TEXTURE_2D, 0, format, img->width, img->height, 0, format, gl_size, img->data);
     }
 
+    // Wrapping & filtering settings
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);	
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glGenerateMipmap(GL_TEXTURE_2D);
 
     if (input.w && !input_prev.w) {

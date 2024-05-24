@@ -10,27 +10,28 @@
 #include "camera.h"
 #include "render_image.h"
 
+#define QUAD_SIZE (3.0f)
 vertex quad_vertices[] = {
-    { .position = {0.5f, 0.5f, 0.0f},
+    { .position = {QUAD_SIZE, QUAD_SIZE, 0.0f},
       .tex_coord = {1.0f, 1.0f}
     },
     {
-      .position = {0.5f, -0.5f, 0.0f},
+      .position = {QUAD_SIZE, -QUAD_SIZE, 0.0f},
       .tex_coord = {1.0f, 0.0f}
     },
     {
-      .position = {-0.5f, -0.5f, 0.0f},
+      .position = {-QUAD_SIZE, -QUAD_SIZE, 0.0f},
       .tex_coord = {0.0f, 0.0f}
     },
     {
-      .position = {-0.5f,  0.5f, 0.0f},
+      .position = {-QUAD_SIZE,  QUAD_SIZE, 0.0f},
       .tex_coord = {0.0f, 1.0f}
     },
-    { .position = {0.5f, 0.5f, 0.0f},
+    { .position = {QUAD_SIZE, QUAD_SIZE, 0.0f},
       .tex_coord = {1.0f, 1.0f}
     },
     {
-      .position = {-0.5f, -0.5f, 0.0f},
+      .position = {-QUAD_SIZE, -QUAD_SIZE, 0.0f},
       .tex_coord = {0.0f, 0.0f}
     }
 };
@@ -50,7 +51,7 @@ typedef struct {
     gl_obj gl_img;
     texture* img;
 
-    gl_obj u_ratio;
+    gl_obj u_img_aspect;
     gl_obj u_proj;
     gl_obj u_model;
     gl_obj u_view;
@@ -103,9 +104,13 @@ void* image_init(texture* img) {
         // No need to print, link check prints messages on failure.
         return NULL;
     }
-    glUseProgram(state->shader_program);
+    // Delete the individual shader objects
+    glDeleteShader(vertex_shader);
+    glDeleteShader(fragment_shader);
 
-    state->u_ratio = glGetUniformLocation(state->shader_program, "ratio");
+    // Get uniform locations
+    glUseProgram(state->shader_program);
+    state->u_img_aspect = glGetUniformLocation(state->shader_program, "img_aspect");
     state->u_proj = glGetUniformLocation(state->shader_program, "projection");
     state->u_model = glGetUniformLocation(state->shader_program, "model");
     state->u_view = glGetUniformLocation(state->shader_program, "view");
@@ -117,12 +122,6 @@ void* image_init(texture* img) {
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, state->gl_img);
 
-    // Wrapping & filtering settings
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);	
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
     glCompressedTexImage2D(GL_TEXTURE_2D, 0, GL_COMPRESSED_RGBA_S3TC_DXT1_EXT, img->width, img->height, 0, (img->width * img->height) / 2, img->data);
     glGenerateMipmap(GL_TEXTURE_2D);
 
@@ -131,10 +130,6 @@ void* image_init(texture* img) {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-
-    // Delete the individual shader objects
-    glDeleteShader(vertex_shader);
-    glDeleteShader(fragment_shader);
 
     // Unbind our buffers
     glBindVertexArray(0);
@@ -146,13 +141,17 @@ void* image_init(texture* img) {
 
 void image_render(void* ctx) {
     img_state* state = (img_state*)ctx;
+    // We have to make the shader active for viewer to upload uniforms
+    glUseProgram(state->shader_program);
 
     // Manages active texture's format, dimensions, etc.
-    viewer_update(state->shader_program, state->img);
+    viewer_update(state->img);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
     // Quad transforms (updated each frame)
     float ratio = (float)state->img->width / (float)state->img->height;
-    glUniform1f(state->u_ratio, ratio);
+    glUniform1f(state->u_img_aspect, ratio);
 
     // Upload projection matrix
     const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
@@ -168,11 +167,10 @@ void image_render(void* ctx) {
 
     mat4 view = {0};
     glm_mat4_identity(view);
-    camera_update(&view);
+    camera_update(&view, ratio);
     glUniformMatrix4fv(state->u_view, 1, GL_FALSE, (const float*)view);
 
     // Draw
-    glUseProgram(state->shader_program);
     glBindVertexArray(state->vertex_array);
     glDrawArrays(GL_TRIANGLES, 0, sizeof(quad_vertices) / sizeof(*quad_vertices));
 }

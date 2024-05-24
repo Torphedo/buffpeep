@@ -5,7 +5,7 @@
 vec3s camera_up = {0.0f, 1.0f, 0.0f};
 
 vec3s camera_target = {0};
-vec3s camera_pos = {.z = 1.0f};
+vec3s camera_pos = {.z = 10.0f};
 
 const float mouse_sens = 0.005f;
 const float scroll_sens = 0.05f;
@@ -52,11 +52,15 @@ vec2s get_cursor_delta(vec2s cursor_pos) {
     return cursor_delta;
 }
 
-void camera_update(mat4* view) {
+void camera_update(mat4* view, float aspect_ratio) {
     static vec2s last_scroll = {0};
 
     vec2s cursor_delta = get_cursor_delta(input.cursor);
+
+    // Adjust speed based on zoom and account for aspect ratio
     cursor_delta = glms_vec2_scale(cursor_delta, camera_pos.z);
+    cursor_delta.x /= aspect_ratio;
+
     const vec2s scroll_delta = {
         .x = scroll_sens * (last_scroll.x - input.scroll.x),
         .y = scroll_sens * (last_scroll.y - input.scroll.y),
@@ -66,8 +70,6 @@ void camera_update(mat4* view) {
     last_scroll = input.scroll;
 
     // Update target pos using delta from user input
-    // TODO: It would be cool if we could make the camera movement motion match
-    // the screen-space mouse movement somehow.
     camera_target.x += cursor_delta.x;
     camera_target.y += cursor_delta.y;
     camera_pos.x += cursor_delta.x;
