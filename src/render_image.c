@@ -4,35 +4,36 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-#include "logging.h"
-#include "shader.h"
+#include <common/gl/shader.h>
+#include <common/gl/model.h>
+#include <common/logging.h>
 #include "viewer.h"
 #include "camera.h"
 #include "render_image.h"
 
 #define QUAD_SIZE (3.0f)
-vertex quad_vertices[] = {
+tex_vertex quad_vertices[] = {
     { .position = {QUAD_SIZE, QUAD_SIZE, 0.0f},
-      .tex_coord = {1.0f, 1.0f}
+      .texcoord = {1.0f, 1.0f}
     },
     {
       .position = {QUAD_SIZE, -QUAD_SIZE, 0.0f},
-      .tex_coord = {1.0f, 0.0f}
+      .texcoord = {1.0f, 0.0f}
     },
     {
       .position = {-QUAD_SIZE, -QUAD_SIZE, 0.0f},
-      .tex_coord = {0.0f, 0.0f}
+      .texcoord = {0.0f, 0.0f}
     },
     {
       .position = {-QUAD_SIZE,  QUAD_SIZE, 0.0f},
-      .tex_coord = {0.0f, 1.0f}
+      .texcoord = {0.0f, 1.0f}
     },
     { .position = {QUAD_SIZE, QUAD_SIZE, 0.0f},
-      .tex_coord = {1.0f, 1.0f}
+      .texcoord = {1.0f, 1.0f}
     },
     {
       .position = {-QUAD_SIZE, -QUAD_SIZE, 0.0f},
-      .tex_coord = {0.0f, 0.0f}
+      .texcoord = {0.0f, 0.0f}
     }
 };
 
@@ -77,36 +78,19 @@ void* image_init(texture* img) {
     glBufferData(GL_ARRAY_BUFFER, sizeof(quad_vertices), &quad_vertices, GL_STATIC_DRAW);
     
     // Create vertex layout
-    glVertexAttribPointer(0, sizeof(vec3f) / sizeof(float), GL_FLOAT, GL_FALSE, sizeof(vertex), (void*)offsetof(vertex, position));
+    glVertexAttribPointer(0, sizeof(vec3s) / sizeof(float), GL_FLOAT, GL_FALSE, sizeof(tex_vertex), (void*)offsetof(tex_vertex, position));
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, sizeof(vec2f) / sizeof(float), GL_FLOAT, GL_FALSE, sizeof(vertex), (void*)offsetof(vertex, tex_coord));
+    glVertexAttribPointer(1, sizeof(vec2s) / sizeof(float), GL_FLOAT, GL_FALSE, sizeof(tex_vertex), (void*)offsetof(tex_vertex, texcoord));
     glEnableVertexAttribArray(1);
     
     // Load and compile shaders
-    gl_obj vertex_shader = shader_compile_src(vert, GL_VERTEX_SHADER);
-    gl_obj fragment_shader = shader_compile_src(frag, GL_FRAGMENT_SHADER);
-    
-    if (vertex_shader == 0 || fragment_shader == 0) {
-        // All needed error information should already be given by the shader
-        // compiler function and our debug callbacks.
-        LOG_MSG(error, "failed to compile shaders.\n");
-        return NULL;
-    }
-
-    // Link the compiled shaders
-    state->shader_program = glCreateProgram();
-    glAttachShader(state->shader_program, vertex_shader);
-    glAttachShader(state->shader_program, fragment_shader);
-    glLinkProgram(state->shader_program);
+    state->shader_program = program_compile_src(vert, frag);
 
     // Make sure linking succeeded
     if (!shader_link_check(state->shader_program)) {
         // No need to print, link check prints messages on failure.
         return NULL;
     }
-    // Delete the individual shader objects
-    glDeleteShader(vertex_shader);
-    glDeleteShader(fragment_shader);
 
     // Get uniform locations
     glUseProgram(state->shader_program);
@@ -124,12 +108,6 @@ void* image_init(texture* img) {
 
     glCompressedTexImage2D(GL_TEXTURE_2D, 0, GL_COMPRESSED_RGBA_S3TC_DXT1_EXT, img->width, img->height, 0, (img->width * img->height) / 2, img->data);
     glGenerateMipmap(GL_TEXTURE_2D);
-
-    glEnable(GL_DEPTH_TEST);
-    // Enable transparency
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glEnable(GL_BLEND);
-    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 
     // Unbind our buffers
     glBindVertexArray(0);

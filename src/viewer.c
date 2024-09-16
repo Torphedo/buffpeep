@@ -4,10 +4,10 @@
 #include <glad/glad.h>
 #include <cglm/struct.h>
 
-#include "image.h"
-#include "input.h"
-#include "logging.h"
-#include "types.h"
+#include <common/gl/input.h>
+#include <common/int.h>
+#include <common/image.h>
+#include <common/logging.h>
 
 input_internal input_prev = {
     .space = true, // Update texture state on startup
@@ -101,7 +101,7 @@ void viewer_update(texture* img) {
     glGenerateMipmap(GL_TEXTURE_2D);
 
     if (input.w && !input_prev.w) {
-        img_write(*img);
+        img_write(*img, "img.dds");
     }
 
     input_prev = input;

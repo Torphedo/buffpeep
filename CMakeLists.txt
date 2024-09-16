@@ -6,6 +6,25 @@ set(CMAKE_C_STANDARD 99)
 add_subdirectory(ext/glad)
 add_subdirectory(ext/glfw)
 
+include_directories(
+    "ext/glfw"
+    "ext/glad/include"
+    "ext/cglm/include"
+    ${bobtail_SOURCE_DIR}
+)
+
+# Download common C library on CMake generation
+include(FetchContent)
+FetchContent_Declare(
+    bobtail
+    GIT_REPOSITORY https://github.com/Torphedo/bobtail.git
+    GIT_TAG        7dee0efa80238efe4790decd3467977e0b7bdbaa
+)
+set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
+option(BOBTAIL_OPENGL "Also compile OpenGL helpers like shader compilation wrappers. Requires GLFW, GLAD, and CGLM" ON)
+set(BOBTAIL_OPENGL ON)
+FetchContent_MakeAvailable(bobtail)
+
 # Internal build tool to generate headers for GLSL shaders
 add_executable(txt2h "ext/txt2h.c")
 
@@ -32,26 +51,14 @@ endforeach()
 
 add_executable(buffpeep
     "src/main.c"
-    "src/shader.c"
-    "src/file.c"
-    "src/image.c"
-    "src/gl_setup.c"
-    "src/input.c"
     "src/camera.c"
-    "src/logging.c"
     "src/viewer.c"
     "src/render_image.c"
 
     # Adding the GLSL headers here auto-generates them during the build
     ${glsl_headers}
 )
-target_link_libraries(buffpeep PRIVATE glfw glad)
-
-target_include_directories(buffpeep PRIVATE
-  "ext/glfw"
-  "ext/glad"
-  "ext/cglm/include"
-)
+target_link_libraries(buffpeep PRIVATE glfw glad common)
 
 file(COPY "src/data/" DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/data)
 

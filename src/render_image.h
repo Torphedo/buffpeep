@@ -1,4 +1,4 @@
-#include "image.h"
+#include <common/image.h>
 
 // Standard interface to facilitate multiple renderers per frame. For example, a
 // UI renderer would render on top of the scene renderer and have separate code.

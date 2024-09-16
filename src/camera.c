@@ -1,4 +1,4 @@
-#include "input.h"
+#include <common/gl/input.h>
 #include "camera.h"
 
 // Up axis for our camera
@@ -29,7 +29,7 @@ vec2s get_cursor_delta(vec2s cursor_pos) {
     static vec2s last_cursor = {0};
 
     // Nullify movement unless click is held
-    if (!input.mouse_l) {
+    if (!input.click_left) {
         last_cursor = input.cursor;
     }
 
