@@ -1,4 +1,6 @@
-cmake_minimum_required(VERSION 3.16)
+# 3.11 required for FetchContent to download depedencies
+cmake_minimum_required(VERSION 3.11)
+include(FetchContent)
 project(buffpeep C)
 
 set(CMAKE_C_STANDARD 99)
@@ -14,14 +16,11 @@ include_directories(
 )
 
 # Download common C library on CMake generation
-include(FetchContent)
 FetchContent_Declare(
     bobtail
     GIT_REPOSITORY https://github.com/Torphedo/bobtail.git
-    GIT_TAG        7dee0efa80238efe4790decd3467977e0b7bdbaa
+    GIT_TAG        6327e3cca52313287106ca594e6290a3073935fa
 )
-set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
-option(BOBTAIL_OPENGL "Also compile OpenGL helpers like shader compilation wrappers. Requires GLFW, GLAD, and CGLM" ON)
 set(BOBTAIL_OPENGL ON)
 FetchContent_MakeAvailable(bobtail)
 
