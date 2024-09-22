@@ -1,5 +1,4 @@
 cmake_minimum_required(VERSION 3.13)
-include(FetchContent)
 project(buffpeep C)
 
 set(CMAKE_C_STANDARD 99)
@@ -11,17 +10,11 @@ include_directories(
     "ext/glfw"
     "ext/glad/include"
     "ext/cglm/include"
-    ${bobtail_SOURCE_DIR}
+    "ext/bobtail"
 )
 
-# Download common C library on CMake generation
-FetchContent_Declare(
-    bobtail
-    GIT_REPOSITORY https://github.com/Torphedo/bobtail.git
-    GIT_TAG        9b22badb44d1cc7847abeb8e0edb9555b0680553
-)
 set(BOBTAIL_OPENGL ON)
-FetchContent_MakeAvailable(bobtail)
+add_subdirectory(ext/bobtail)
 
 # Internal build tool to generate headers for GLSL shaders
 add_executable(txt2h "ext/txt2h.c")
