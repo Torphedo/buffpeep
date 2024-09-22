@@ -54,6 +54,7 @@ int main(int argc, char** argv) {
 
         glfwSwapBuffers(window);
         glfwPollEvents();
+        update_mods(window);
     }
 
     // Clean up
