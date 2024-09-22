@@ -1,5 +1,4 @@
-# 3.11 required for FetchContent to download depedencies
-cmake_minimum_required(VERSION 3.11)
+cmake_minimum_required(VERSION 3.13)
 include(FetchContent)
 project(buffpeep C)
 
@@ -19,7 +18,7 @@ include_directories(
 FetchContent_Declare(
     bobtail
     GIT_REPOSITORY https://github.com/Torphedo/bobtail.git
-    GIT_TAG        6327e3cca52313287106ca594e6290a3073935fa
+    GIT_TAG        9b22badb44d1cc7847abeb8e0edb9555b0680553
 )
 set(BOBTAIL_OPENGL ON)
 FetchContent_MakeAvailable(bobtail)
@@ -41,9 +40,9 @@ foreach(glsl_src ${GLSL_SOURCES})
     list(APPEND glsl_headers ${file_h}) # Add to list of generated headers
 
     add_custom_command(
-        OUTPUT  ${CMAKE_SOURCE_DIR}/${file_h}
+        OUTPUT  ${CMAKE_CURRENT_SOURCE_DIR}/${file_h}
         COMMAND txt2h ${glsl_src}
-        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
     )
 endforeach()
 
@@ -57,7 +56,7 @@ add_executable(buffpeep
     # Adding the GLSL headers here auto-generates them during the build
     ${glsl_headers}
 )
-target_link_libraries(buffpeep PRIVATE glfw glad common)
+target_link_libraries(buffpeep PRIVATE glfw glad bobtail)
 
 file(COPY "src/data/" DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/data)
 
