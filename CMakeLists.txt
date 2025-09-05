@@ -45,6 +45,8 @@ add_executable(buffpeep
     "src/camera.c"
     "src/viewer.c"
     "src/render_image.c"
+    "src/model.c"
+    "src/vector.c"
 
     # Adding the GLSL headers here auto-generates them during the build
     ${glsl_headers}

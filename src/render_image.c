@@ -5,8 +5,8 @@
 #include <GLFW/glfw3.h>
 
 #include <common/gl/shader.h>
-#include <common/gl/model.h>
 #include <common/logging.h>
+#include "model.h"
 #include "viewer.h"
 #include "camera.h"
 #include "render_image.h"
