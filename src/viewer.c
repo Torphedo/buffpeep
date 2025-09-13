@@ -71,9 +71,17 @@ void viewer_update(texture* img) {
             img->channels = (img->channels % 4) + 1;
         }
 
-        LOG_MSG(info, "%d-bit, %d channels", (1 << img->unit_size) * 8, img->channels);
+        LOG_MSG(info, "%d-bit, %d channels", img->unit_size * 8, img->channels);
         printf(" %dx%d\n", img->width, img->height);
-        GLenum gl_size = GL_UNSIGNED_BYTE + (img->unit_size * 2);
+        GLenum gl_size = GL_UNSIGNED_BYTE;
+        switch (img->unit_size) {
+        case 1:
+            gl_size = GL_UNSIGNED_BYTE;
+            break;
+        case 2:
+            gl_size = GL_UNSIGNED_SHORT;
+            break;
+        }
         GLint format;
         switch (img->channels) {
             case 1:
@@ -101,6 +109,7 @@ void viewer_update(texture* img) {
     glGenerateMipmap(GL_TEXTURE_2D);
 
     if (input.w && !input_prev.w) {
+        LOG_MSG(info, "Saving image.\n");
         img_write(*img, "img.dds");
     }
 
