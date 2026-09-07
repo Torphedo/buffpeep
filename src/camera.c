@@ -30,7 +30,7 @@ vec2s get_cursor_delta(vec2s cursor_pos) {
 
     // Nullify movement unless click is held
     if (!input.click_left) {
-        last_cursor = input.cursor;
+        last_cursor = cursor_pos;
     }
 
     vec2s cursor_delta = {
@@ -55,19 +55,19 @@ vec2s get_cursor_delta(vec2s cursor_pos) {
 void camera_update(mat4* view, float aspect_ratio) {
     static vec2s last_scroll = {0};
 
-    vec2s cursor_delta = get_cursor_delta(input.cursor);
+    vec2s cursor_delta = get_cursor_delta((vec2s){input.cursor_x, input.cursor_y});
 
     // Adjust speed based on zoom and account for aspect ratio
     cursor_delta = glms_vec2_scale(cursor_delta, camera_pos.z);
     cursor_delta.x /= aspect_ratio;
 
     const vec2s scroll_delta = {
-        .x = scroll_sens * (last_scroll.x - input.scroll.x),
-        .y = scroll_sens * (last_scroll.y - input.scroll.y),
+        .x = scroll_sens * (last_scroll.x - input.scroll_x),
+        .y = scroll_sens * (last_scroll.y - input.scroll_y),
     };
 
     // Save state so we can find the delta next time we're called
-    last_scroll = input.scroll;
+    last_scroll = (vec2s){input.scroll_x, input.scroll_y};
 
     // Update target pos using delta from user input
     camera_target.x += cursor_delta.x;
