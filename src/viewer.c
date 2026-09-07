@@ -19,6 +19,8 @@ void viewer_update(texture* img) {
     bool left = (input.h && !input_prev.h) || (input.left && !input_prev.left);
     bool right = (input.l && !input_prev.l) || (input.right && !input_prev.right);
     bool space = (input.space * !input_prev.space);
+    int w = (input.w);
+    int s = (input.s);
     img->compressed ^= input.c && !input_prev.c; // Toggle if pressed
 
     // Increments of 1, or by 4 if compressed (compressed resolution must be a multiple of 4)
@@ -32,6 +34,8 @@ void viewer_update(texture* img) {
     // Adjust image dimensions
     img->height += delta_v * multiplier;
     img->width  += delta_h * multiplier;
+    img->data = (u8*)((uintptr_t)img->data + (w * multiplier * 4));
+    img->data = (u8*)((uintptr_t)img->data - (s * multiplier * 4));
 
     printf("\033[1F\033[2K"); // Go up a line & clear
 
